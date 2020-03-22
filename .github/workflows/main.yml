@@ -25,5 +25,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: root
           key: ${{ secrets.ACCESS_TOKEN }}
+          key_path: /root/.ssh/
           source: "dist/*"
           target: "/usr/local/nginx/html/full-stack"
