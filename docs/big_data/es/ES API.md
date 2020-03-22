@@ -745,7 +745,9 @@ GET /bank/account/25/_termvectors?fields=address
 
 ## 倒排索引
 
-倒排索引：单词到文档ID的关系![IMG_6393](assets/IMG_6393.png)
+倒排索引：单词到文档ID的关系
+
+![IMG_6393](assets/IMG_6393.png)
 
 ```shell
 POST _analyze
