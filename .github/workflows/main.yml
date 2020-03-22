@@ -1,0 +1,29 @@
+name: deploy to cloud
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.16.1]
+    steps:
+      # 切换分支
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Use Node.js 12.16.1
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.16.1
+      - run: npm install
+      - run: npm run build
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: root
+          key: ${{ secrets.ACCESS_TOKEN }}
+          source: "dist/*"
+          target: "/usr/local/nginx/html/full-stack"
