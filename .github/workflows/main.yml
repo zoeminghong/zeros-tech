@@ -25,5 +25,5 @@ jobs:
           host: ${{ secrets.HOST }}
           username: root
           password: ${{ secrets.PASSWORD }}
-          source: "dist/*"
+          source: "dist/index.html,dist/static/*,dist/umi.css,dist/umi.js"
           target: "/usr/local/nginx/html/full-stack"
