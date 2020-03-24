@@ -280,3 +280,20 @@ Docker open -a Docker
 ### SSH 工具
 
 Termius 工具，免费
+
+### ICloud 免同步设置
+
+例如 node_modules 文件夹下面的内容一般丢了就丢了，可以通过 `package.json` 重新获取得到。针对这种类似场景，我们希望能将其不需要同步的内容进行标记排除。iCloud 默认对 tmp 文件名或者 `.nosync` 文件后缀的文件排除在外。但这个并不能满足我们的要求，node_modules 文件夹名称是固定的，不可能进行相应的修改。有一个开源工具利用  `.nosync` + 替身 方案实现了我们的要求。
+
+https://github.com/tsdexter/iCloud-NoSync
+
+#### How it works
+
+- Download the repository and unzip it
+- Copy the `iCloud-NoSync.workflow` file to your `~/Library/Services` folder
+
+#### How to use it
+
+- Open Finder and find a folder you don't want to sync to iCloud
+- Right-click the folder
+- Choose `iCloud-NoSync` from the bottom of the context menu
