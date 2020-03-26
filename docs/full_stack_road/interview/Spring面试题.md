@@ -161,3 +161,17 @@ DisposableBean、@PreDestroy、destroy-method
  **AOP:**Aspect Oriented Program, 面向(方面)切面的编程;Filter(过滤器) 也是一种 AOP. AOP 是一种 新的方法论, 是对传统 OOP(Object-Oriented Programming, 面向对象编程) 的补充. AOP 的 主要编程对象是切面(aspect), 而切面模块化横切关注点.可以举例通过事务说明.
 
 IOC: Invert Of Control, 控制反转. 也成为 DI(依赖注入)其思想是反转资源获取的方向. 传统 的资源查找方式要求组件向容器发起请求查找资源.作为回应, 容器适时的返回资源. **而应用了 IOC 之后, 则是容器主动地将资源推送给它所管理的组件**,组件所要做的仅是选择一种合适的方式 来接受资源. 这种行 为也被称为查找的被动形式
+
+### @Import注解的三种使用方式
+
+https://www.cnblogs.com/yichunguo/p/12122598.html
+
+1、直接填class数组方式
+2、ImportSelector方式【重点】
+3、ImportBeanDefinitionRegistrar方式
+
+实例化顺序：`注解所在类>class|ImportSelector>@Bean>ImportBeanDefinitionRegistrar`
+
+### Spring 拦截器的实现？
+
+调用入口是 DispatcherServlet 类的 doDispatch 方法中调用 HandlerExecutionChain 中的applyPreHandle、applyPostHandle、triggerAfterCompletion等方法。

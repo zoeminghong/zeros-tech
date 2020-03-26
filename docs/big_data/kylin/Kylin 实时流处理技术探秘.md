@@ -32,7 +32,7 @@
 
 ### 存储流程
 
-实时数据会消费到 Streaming Receivers，通过 Streaming Coordinator 指定 Receivers 消费与 Cube 相关的 Topic 中 Partition 的数据，Receivers 会做 Base Cuboid 的构建，另外可以支持创建一些常用的 Cuboid，以提高查询的性能。过一段时间之后，会将数据从本地数据刷写到 HDFS 上，并通知 Coordinator ，待全部的 Replica Set 把 Cube Segment 的所有实时数据上传到 HDFS 后，Coordinator 触发 MapReduce Job 进行一个批量的构建。Job 会从 HDFS 中拉取实时数据进行构建，做一些合并工作并将 Cuboid 同步到 HBase 中，当同步完成之后，Coordinator 会通知实时集群将相应的数据删除。
+实时数据会消费到 Streaming Receivers，通过 Streaming Coordinator 指定 Receivers 消费与 Cube 相关的 Topic 中 Partition 的数据，**Receivers 会做 Base Cuboid 的构建**，另外可以支持创建一些常用的 Cuboid，以提高查询的性能。过一段时间之后，会将数据从本地数据刷写到 HDFS 上，并通知 Coordinator ，待全部的 Replica Set 把 Cube Segment 的所有实时数据上传到 HDFS 后，Coordinator 触发 MapReduce Job 进行一个批量的构建。Job 会从 HDFS 中拉取实时数据进行构建，做一些合并工作并将 Cuboid 同步到 HBase 中，当同步完成之后，Coordinator 会通知实时集群将相应的数据删除。
 
 ### 数据查询
 
@@ -86,7 +86,7 @@ check point 作为错误恢复、保证在服务重启的时候不会出现数�
 
 **3、在进行构建的时候，Cuboid 方面是怎么处理的？**
 
-实时数据默认会被构建成 Base Cuboid，但如果存在其他的 mandatory cuboid，也是支持进行配置。
+实时数据默认会被构建成 Base Cuboid，在 Receivers 中进行，但如果存在其他的 mandatory cuboid，也是支持进行配置。
 
 **4、为什么使用 LZ4 压缩格式？**
 
@@ -95,5 +95,13 @@ check point 作为错误恢复、保证在服务重启的时候不会出现数�
 **5、Fragment File 存有哪些信息？**
 
 Cube 名称、根据时间划分的 Segmnet Name、主要文件为 `.data` 和 `.meta` ，在data文件中存有倒排索引、经过编码后的值、字典，meta 文件存有元数据相关信息。
+
+**6、Fragment File 与 Segment 关系？**
+
+两者一一对应，Fragment File 由 cube Segment 而产生。
+
+**7、Partition 与 Segment 之间的关系？**
+
+两者没有直接关系，Partition 是决定 Receiver 个数，对数据进行 Base Cuboid 构建，之后存到硬盘上时才是 Segment File 的格式。
 
 原文地址：https://www.infoq.cn/article/AafpvXOrZcYWUm-kIkVi
