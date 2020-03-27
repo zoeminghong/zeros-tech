@@ -67,6 +67,7 @@ HashMap是我们在编程中遇到极其频繁、非常重要的一个集合类�
 - 第一个是链表的结构比红黑树简单，构造红黑树要比构造链表复杂，所以在链表的节点不多的情况下，从整体的性能看来，
   数组+链表+红黑树的结构不一定比数组+链表的结构性能高。
 - 第二个是HashMap频繁的resize（扩容），扩容的时候需要重新计算节点的索引位置，也就是会将红黑树进行拆分和重组其实这是很复杂的，这里涉及到红黑树的**着色和旋转**，有兴趣的可以看看红黑树的原理，这又是一个比链表结构耗时的操作，所以为链表树化设置一个阀值是非常有必要的。
+- 为什么要将链表替换为红黑树呢？红黑树插入为O(lgn),查询为O(lgn)，链表插入为O(1)，查询为O(n)，当链表长度过大的时候，查询性能就不是特别的好。
 
 ## 三、源码分析
 
@@ -87,6 +88,8 @@ HashMap是我们在编程中遇到极其频繁、非常重要的一个集合类�
 （3）**Hash表每次会扩容长度为以前的2倍**
 
 （4）**HashMap是多线程不安全的**，我在JDK1.7进行多线程put操作，之后遍历，直接死循环，CPU飙到100%，在JDK 1.8中进行多线程操作会出现节点和value值丢失，为什么JDK1.7与JDK1.8多线程操作会出现很大不同，是因为JDK 1.8的作者对resize方法进行了优化不会产生链表闭环。这也是本章的重点之一，具体的细节大家可以去查阅资料。这里我就不解释太多了
+
+https://www.cnblogs.com/wen-he/p/11496050.html
 
 （5）尽量设置HashMap的初始容量，尤其在数据量大的时候，防止多次resize
 
@@ -203,6 +206,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         //旧键值对的覆盖
         if (p.hash == hash &&
             ((k = p.key) == key || (key != null && key.equals(k))))
+          // e 为旧值，e为需要被找到的旧值
             e = p;
         //在红黑树中查找旧键值对更新
         else if (p instanceof TreeNode)
@@ -210,6 +214,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         else {
             //将新键值对放在链表的最后
             for (int binCount = 0; ; ++binCount) {
+              // 以后列表中找不到相应的key，进行创建
                 if ((e = p.next) == null) {
                     p.next = newNode(hash, key, value, null);
                     //当链表的长度大于等于树化阀值，并且hash桶的长度大于等于MIN_TREEIFY_CAPACITY，链表转化为红黑树
@@ -259,7 +264,7 @@ static final int hash(Object key) {
 
 hashCode()是一个int类型的本地方法，也就将key的hashCode无符号右移16位然后与hashCode异或从而得到hash值在putVal方法中（n - 1）& hash计算得到桶的索引位置 ，那么现在有两个疑问，为什么要计算hash值？为什么不用 hash % n?
 
-- 为什么要计算hash值，而不用hashCode，用为通常n是很小的，而hashCode是32位，如果（n - 1）& hashCode那么当n大于2的16次方加1，也就是65537后(n - 1)的高位数据才能与hashCode的高位数据相与，当n很小是只能使用上hashCode低
+- 为什么要计算hash值，而不用hashCode，因为通常n是很小的，而hashCode是32位，如果（n - 1）& hashCode那么当n大于2的16次方加1，也就是65537后(n - 1)的高位数据才能与hashCode的高位数据相与，当n很小时只能使用上hashCode低
   16位的数据，这会产生一个问题，既键值对在hash桶中分布不均匀，导致链表过长，而把hashCode>>>16无符号右移16位让高16位间接的与（n - 1）参加计算，从而让键值对分布均匀。降低hash碰撞。
 - 为什么使用（n - 1）& hash 而不使用hash% n呢？其实这两种结果是等价的，但是&的效率比%高，原因因为&运算是二
   进制直接运算，而计算机天生就认得二进制。下面画图说明一下
