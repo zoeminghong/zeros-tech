@@ -119,6 +119,25 @@ usr/local/bin/redis-server /usr/local/redis-5.0.3/redis.conf
 
 #带密码连接
 ./redis-cli -a your_password
+
+# 关闭
+redis-cli shutdown
+```
+
+开启外网
+
+```
+更改redis.conf 文件
+
+bind 127.0.0.1
+
+protected-mode yes
+
+更改为
+
+# bind 127.0.0.1
+
+protected-mode no
 ```
 
 ### MySQL 安装

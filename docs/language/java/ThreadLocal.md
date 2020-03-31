@@ -15,7 +15,11 @@
 
 ## 实现原理：
 
-因为一个线程内可以存在多个 ThreadLocal 对象，所以其实是 ThreadLocal 内部维护了一个 Map ，这个 Map 不是直接使用的 HashMap ，而是 ThreadLocal 实现的一个叫做 ThreadLocalMap 的静态内部类。而我们使用的 get()、set() 方法其实都是调用了这个ThreadLocalMap类对应的 get()、set() 方法。例如下面的 set 方法：
+每个 Thread 对象中存储着 ThreadLocalMap 对象，ThreadLocalMap 的 key 为 ThreadLocal 对象实例，value 是 ThreadLocal 泛型指代的对象。
+
+- 同一个线程可能创建多个 ThreadLocal 对象
+- 在多线程的场景下，不同的线程会 new ThreadLocal，根据各自线程的 ThreadLocal 实例名获取泛型对象。
+- 线程隔离
 
 ### set 方法
 
@@ -67,7 +71,7 @@ void createMap(Thread t, T firstValue) {
 
 总结：实际上ThreadLocal的值是放入了当前线程的一个ThreadLocalMap实例中，所以只能在本线程中访问，其他线程无法访问。
 
-从上面可以知道，ThreadLocal 实例（this）被 ThreadLocalMap 所持有，当使用线程池管理线程时，由于复用线程，就会出现 ThreadLocalMap 中存在过多的新 ThreadLocal 实例，从而导致内存泄漏。
+从上面可以知道，ThreadLocal 实例（this）被 ThreadLocalMap 所持有，**当使用线程池管理线程时，由于复用线程，就会出现 ThreadLocalMap 中存在过多的新 ThreadLocal 实例，从而导致内存泄漏。**
 
 threadLocalMap 初始大小为16，当容量超过2/3时会自动扩容。
 
@@ -140,7 +144,7 @@ ThreadLocalMap的getEntry函数的流程大概为：
 
 首先从ThreadLocal的直接索引位置(通过ThreadLocal.threadLocalHashCode & (table.length-1)运算得到)获取Entry e，如果e不为null并且key相同则返回e；
 如果e为null或者key不一致则向下一个位置查询，如果下一个位置的key和当前需要查询的key相等，则返回对应的Entry。否则，如果key值为null，则擦除该位置的Entry，并继续向下一个位置查询。在这个过程中遇到的key为null的Entry都会被擦除，那么Entry内的value也就没有强引用链，自然会被回收。仔细研究代码可以发现，set操作也有类似的思想，将key为null的这些Entry都删除，防止内存泄露。
-　　但是光这样还是不够的，上面的设计思路依赖一个前提条件：要调用ThreadLocalMap的getEntry函数或者set函数。这当然是不可能任何情况都成立的，所以很多情况下需要使用者手动调用ThreadLocal的remove函数，手动删除不再需要的ThreadLocal，防止内存泄露。所以JDK建议将ThreadLocal变量定义成private static的，这样的话ThreadLocal的生命周期就更长，由于一直存在ThreadLocal的强引用，所以ThreadLocal也就不会被回收，也就能保证任何时候都能根据ThreadLocal的弱引用访问到Entry的value值，然后remove它，防止内存泄露。
+　　但是光这样还是不够的，上面的设计思路依赖一个前提条件：要调用ThreadLocalMap的getEntry函数或者set函数。这当然是不可能任何情况都成立的，**所以很多情况下需要使用者手动调用ThreadLocal的remove函数**，手动删除不再需要的ThreadLocal，防止内存泄露。所以JDK建议将ThreadLocal变量定义成**private static**的，这样的话ThreadLocal的生命周期就更长，由于一直存在ThreadLocal的强引用，所以ThreadLocal也就不会被回收，也就能保证任何时候都能根据ThreadLocal的弱引用访问到Entry的value值，然后remove它，防止内存泄露。
 
 为什么要不断往后找key为null的情况呢，首先这个threadLocalHashCode是有规律，不断往后累加的，如果在前面的entity中存在为空的情况，也就意味着后面值也有可能存在为null的情况。
 

@@ -89,7 +89,7 @@ public class SyncTest {
 }
 ```
 
-每个对象有一个监视器锁(monitor)。当monitor被占用时就会处于锁定状态，线程执行monitorenter指令时尝试获取monitor的所有权，过程：
+每个对象有一个监视器锁(monitor)。当monitor被占用时就会处于锁定状态，线程执行monitor.enter指令时尝试获取monitor的所有权，过程：
 
 1. 如果monitor的进入数为0，则该线程进入monitor，然后将进入数设置为1，该线程即为monitor的所有者。
 
