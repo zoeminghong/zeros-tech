@@ -30,9 +30,9 @@ jobs:
       - name: SSH Execute Commands
         uses: JimCronqvist/action-ssh@0.1.1
         with:
-            hosts: "root@${{ secrets.HOST }} -o StrictHostKeyChecking=no"
-            privateKey: ${{ secrets.ACCESS_TOKEN }}
-            command: |
-              cd /usr/local/nginx/html/
-              rm -rf full-stack
-              mv dist/ full-stack
+          hosts: "root@${{ secrets.HOST }} -o StrictHostKeyChecking=no"
+          privateKey: ${{ secrets.ACCESS_TOKEN }}
+          command: |
+            cd /usr/local/nginx/html/
+            rm -rf full-stack
+            mv /usr/local/nginx/html/dist/ /usr/local/nginx/html/full-stack
