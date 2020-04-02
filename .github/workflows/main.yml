@@ -25,5 +25,14 @@ jobs:
           host: ${{ secrets.HOST }}
           username: root
           password: ${{ secrets.PASSWORD }}
-          source: "dist/index.html,dist/static/*,dist/umi.css,dist/umi.js"
-          target: "/usr/local/nginx/html/full-stack"
+          source: "dist/*"
+          target: "/usr/local/nginx/html/"
+      - name: SSH Execute Commands
+        uses: JimCronqvist/action-ssh@0.1.1
+        with:
+            hosts: "root@${{ secrets.HOST }} -o StrictHostKeyChecking=no"
+            privateKey: ${{ secrets.ACCESS_TOKEN }}
+            command: |
+              cd /usr/local/nginx/html/
+              rm -rf full-stack
+              mv dist/ full-stack

@@ -251,7 +251,7 @@ public static boolean interrupted() {
 private native boolean isInterrupted(boolean ClearInterrupted);
 ```
 
-3）interrupted
+3）isInterrupted
 
 `Thread#isInterrupted()` 方法，**查询指定线程的中断状态，不会清除原状态**。代码如下：
 
@@ -259,7 +259,7 @@ private native boolean isInterrupted(boolean ClearInterrupted);
 // Thread.java
 
 public boolean isInterrupted() {
-    return isInterrupted(false); // 不清楚
+    return isInterrupted(false); // 不清除
 }
 
 private native boolean isInterrupted(boolean ClearInterrupted);
@@ -331,8 +331,8 @@ public static native boolean holdsLock(Object obj);
 # Java 锁
 
 - `synchronized`
-  - [![synchronized-1](assets/b9bc9653929e5da43d8edad6e6a0d293-8103289.jpeg)](http://static2.iocoder.cn/b9bc9653929e5da43d8edad6e6a0d293)synchronized-1
-  - [![synchronized-2导图](assets/a79be5f48c26abb905348e43a1732d55-8103289.jpeg)](http://static2.iocoder.cn/a79be5f48c26abb905348e43a1732d55)synchronized-2导图
+  - [![synchronized-1](assets/b9bc9653929e5da43d8edad6e6a0d293-8103289.jpeg)](http://static2.iocoder.cn/b9bc9653929e5da43d8edad6e6a0d293)
+  - [![synchronized-2导图](assets/a79be5f48c26abb905348e43a1732d55-8103289.jpeg)](http://static2.iocoder.cn/a79be5f48c26abb905348e43a1732d55)
 - `volatile`
   - [![volatile](assets/506052a856416414e18c7ed79d43cc5c-8103289.jpeg)](http://static2.iocoder.cn/506052a856416414e18c7ed79d43cc5c)volatile
 
@@ -364,6 +364,8 @@ public static native boolean holdsLock(Object obj);
 #### 概述一下锁升级？
 
 轻量级锁、偏向锁
+
+https://blog.csdn.net/qq_41701956/article/details/83660927
 
 http://www.iocoder.cn/JUC/sike/synchronized/
 
@@ -489,7 +491,7 @@ Java 中可以创建 `volatile` 类型数组，**不过只是一个指向数组�
 
 #### 什么是 AQS ？
 
-`java.util.concurrent.locks.AbstractQueuedSynchronizer` 抽象类，简称 AQS ，是一个用于构建锁和同步容器的同步器。事实上`concurrent` 包内许多类都是基于 AQS 构建。例如 ReentrantLock，Semaphore，CountDownLatch，ReentrantReadWriteLock，等。AQS 解决了在实现同步容器时设计的大量细节问题。
+`java.util.concurrent.locks.AbstractQueuedSynchronizer` 抽象类，简称 AQS ，是一个用于构建锁和同步容器的同步器。事实上`concurrent` 包内许多类都是基于 AQS 构建。例如 ReentrantLock，Semaphore，CountDownLatch，ReentrantReadWriteLock等。AQS 解决了在实现同步容器时设计的大量细节问题。
 
 AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点称作“哨兵节点”或者“哑节点”，它不与任何线程关联。其他的节点与等待线程关联，每个节点维护一个等待状态 `waitStatus` 。
 
@@ -534,13 +536,13 @@ AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点�
 
 #### ReadWriteLock 是什么？
 
-ReadWriteLock ，读写锁是，用来提升并发程序性能的锁分离技术的 Lock 实现类。可以用于 “多读少写” 的场景，读写锁支持多个读操作并发执行，写操作只能由一个线程来操作。
+ReadWriteLock ，读写锁是用来提升并发程序性能的锁分离技术的 Lock 实现类。可以用于 “多读少写” 的场景，读写锁支持多个读操作并发执行，写操作只能由一个线程来操作。
 
 ReadWriteLock 对向数据结构相对不频繁地写入，但是有多个任务要经常读取这个数据结构的这类情况进行了优化。ReadWriteLock 使得你可以同时有多个读取者，只要它们都不试图写入即可。如果写锁已经被其他任务持有，那么任何读取者都不能访问，直至这个写锁被释放为止。
 
 ReadWriteLock 对程序性能的提高主要受制于如下几个因素：
 
-1. 数据被读取的频率与被修改的频率相比较的结果。
+1. 数据被读取的频率与被修改的频率相比较的结果
 2. 读取和写入的时间
 3. 有多少线程竞争
 4. 是否在多处理机器上运行
@@ -624,7 +626,7 @@ JDK7 提供了 7 个阻塞队列。分别是：
 
   > 优势在于多线程入队时，减少一半的竞争。
 
-🦅 **ArrayBlockingQueue 与 LinkedBlockingQueue 的区别？**
+**ArrayBlockingQueue 与 LinkedBlockingQueue 的区别？**
 
 | Queue               | 阻塞与否 | 是否有界 | 线程安全保障    | 适用场景                       | 注意事项                                                     |
 | :------------------ | :------- | :------- | :-------------- | :----------------------------- | :----------------------------------------------------------- |
@@ -648,7 +650,7 @@ JDK7 提供了 7 个阻塞队列。分别是：
 
   。在生产者-消费者设计中，所有消费者共享一个工作队列，而在工作密取中，每个消费者都有各自的双端队列。
 
-  - 如果一个消费者完成了自己双端队列中的全部工作，那么他就可以从其他消费者的双端队列末尾秘密的获取工作。具有更好的可伸缩性，这是因为工作者线程不会在单个共享的任务队列上发生竞争。
+  - 如果一个消费者完成了自己双端队列中的全部工作，那么他就可以从其他消费者的双端队列末尾秘密的获取工作。具有更好的可伸缩性，这是**因为工作者线程不会在单个共享的任务队列上发生竞争。**
   - 在大多数时候，他们都只是访问自己的双端队列，从而极大的减少了竞争。当工作者线程需要访问另一个队列时，它会从队列的尾部而不是头部获取工作，因此进一步降低了队列上的竞争。
 
 - 适用于：网页爬虫等任务中
@@ -668,7 +670,7 @@ Java 提供的线程安全的 Queue 可以分为
 
 - 阻塞队列，典型例子是 LinkedBlockingQueue 。
 
-  > 适用阻塞队列的好处：多线程操作共同的队列时不需要额外的同步，另外就是队列会自动平衡负载，即那边（生产与消费两边）处理快了就会被阻塞掉，从而减少两边的处理速度差距。
+  > 适用阻塞队列的好处：**多线程操作共同的队列时不需要额外的同步，另外就是队列会自动平衡负载**，即那边（生产与消费两边）处理快了就会被阻塞掉，从而减少两边的处理速度差距。
 
 - 非阻塞队列，典型例子是 ConcurrentLinkedQueue 。
 
@@ -878,7 +880,7 @@ ThreadPoolExecutor 提供了动态调整线程池容量大小的方法：
 
 1）**Callable**
 
-Callable 接口，类似于 Runnable ，从名字就可以看出来了，但是Runnable 不会返回结果，并且无法抛出返回结果的异常，而 Callable 功能更强大一些，被线程执行后，可以返回值，这个返回值可以被 Future 拿到，也就是说，Future 可以拿到异步执行任务的返回值。
+Callable 接口，类似于 Runnable ，从名字就可以看出来了，但是Runnable 不会返回结果，并且无法抛出返回结果的异常，而 Callable 功能更强大一些，被线程执行后，**可以返回值**，这个返回值可以被 Future 拿到，也就是说，Future 可以拿到异步执行任务的返回值。
 
 > 简单来说，可以认为是带有回调的 Runnable 。
 
@@ -951,7 +953,7 @@ Java内存模型（Java Memory Model）描述了Java程序中各种变量（线�
 - 线程解锁前，必须把共享变量的最新值刷新到主内存中。
 - 线程加锁时，将清空工作内存中共享变量的值,从而使用共享变量时需要从主内存中重新读取最新的值（注意：加锁与解锁需要的是同一把锁）
 
-#### 22、线程执行互斥代码的过程？
+#### 线程执行互斥代码的过程？
 
 1. 获得互斥锁
 2. 清空工作内存

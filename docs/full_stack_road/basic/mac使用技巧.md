@@ -11,6 +11,8 @@
 - 查看已经安装的软件 `brew list`
 - brew 升级 `brew update`
 
+配置路径：`/usr/local/etc`
+
 #### services
 
 帮助快速启动应用，举个例子
