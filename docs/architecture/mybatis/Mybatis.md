@@ -87,8 +87,6 @@ resultSetType
 
 FORWARD_ONLY，SCROLL_SENSITIVE, SCROLL_INSENSITIVE 或 DEFAULT（等价于 unset） 中的一个，默认值为 unset （依赖数据库驱动）。
 
-
-
 ```
 XMLMapperBuilder
 XMLStatementBuilder
@@ -96,3 +94,10 @@ XMLConfigBuilder
 XPathParser
 SqlSessionFactoryBean
 ```
+
+MappedStatement：封装每个sql语句的配置信息
+
+MapperBuilderAssistant：负责管理MappedStatement内容
+
+MybatisMapperRegistry：负责mapper注册
+

@@ -505,7 +505,7 @@ Final 变量在并发当中，原理是通过禁止 cpu 的指令集重排序，
 
 Java内存模型（Java Memory Model）描述了Java程序中各种变量（线程共享变量）的访问规则，以及在JVM中将变量存储到内存和从内存中读取出变量这样的底层细节。
 
-<img src="assets/image-20191026154246219.png" alt="image-20191026154246219" style="zoom:50%;" />
+![](assets/image-20191026154246219.png)
 
 
 
