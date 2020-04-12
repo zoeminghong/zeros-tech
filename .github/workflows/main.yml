@@ -14,10 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: SSH Execute Commands
-        uses: JimCronqvist/action-ssh@0.1.1
+        uses: appleboy/ssh-action@master
         with:
-          hosts: '${{ secrets.HOST }} -o StrictHostKeyChecking=no'
-          privateKey: ${{ secrets.ACCESS_TOKEN }}
-          debug: false
-          command: |
-            sh /data/source/build.sh
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: sh /data/source/build.sh
+            
