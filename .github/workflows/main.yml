@@ -18,5 +18,6 @@ jobs:
         with:
           hosts: "root@${{ secrets.HOST }} -o StrictHostKeyChecking=no"
           privateKey: ${{ secrets.ACCESS_TOKEN }}
+          debug: true
           command: |
             sh /data/source/build.sh
