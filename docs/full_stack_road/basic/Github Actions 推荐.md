@@ -34,6 +34,27 @@ jobs:
 
 链接：https://github.com/appleboy/scp-action
 
+### appleboy/ssh-action
+
+以 ssh 方式登录远程服务器，进行相应的命令操作
+
+```shell
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Execute Commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: sh /data/source/build.sh
+```
+
+链接：https://github.com/appleboy/ssh-action
+
 ### JimCronqvist/action-ssh
 
 以 ssh 方式登录远程服务器，进行相应的命令操作
@@ -48,3 +69,4 @@ jobs:
 ```
 
 链接：https://github.com/JimCronqvist/action-ssh
+
