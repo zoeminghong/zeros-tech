@@ -108,6 +108,9 @@ Redis 提供 RDB 和 AOF 两种数据的持久化存储方案，解决内存数�
 
 RDB 和 AOF
 
+- RDB 将数据库的快照（snapshot）以**二进制**的方式保存到磁盘中。
+- AOF 则以**协议文本**的方式，将所有对数据库进行过写入的命令（及其参数）记录到 AOF 文件，以此达到记录数据库状态的目的。
+
 #### 讲一下 RDB 实现持久化实现方式？
 
 保存
@@ -131,7 +134,7 @@ RDB 和 AOF
 
 #### 在执行 BGREWRITEAOF时，AOF 的相关操作会受影响吗？
 
-不会，因为 AOF 写入由后台线程完成， 而 [BGREWRITEAOF](http://redis.readthedocs.org/en/latest/server/bgrewriteaof.html#bgrewriteaof) 则由子进程完成， 所以在 [SAVE](http://redis.readthedocs.org/en/latest/server/save.html#save) 执行的过程中， AOF 写入和 [BGREWRITEAOF](http://redis.readthedocs.org/en/latest/server/bgrewriteaof.html#bgrewriteaof) 可以同时进行。
+不会，因为 AOF 写入由**后台线程**完成， 而 [BGREWRITEAOF](http://redis.readthedocs.org/en/latest/server/bgrewriteaof.html#bgrewriteaof) 则由**子进程**完成， 所以在 [SAVE](http://redis.readthedocs.org/en/latest/server/save.html#save) 执行的过程中， AOF 写入和 [BGREWRITEAOF](http://redis.readthedocs.org/en/latest/server/bgrewriteaof.html#bgrewriteaof) 可以同时进行。
 
 #### BGREWRITEAOF 和 BGSAVE 可以同时执行吗？
 
@@ -229,7 +232,7 @@ AOF 重写可以由用户通过调用 [BGREWRITEAOF](http://redis.readthedocs.or
 3. volatile-random
 4. allkeys-lru
 5. allkeys-random
-6. 【默认策略】no-enviction
+6. 【默认策略】no-enviction，不启动淘汰策略，直接返回错误
 7. volatile-lfu
 8. allkeys-lfu
 
@@ -253,6 +256,16 @@ MULTI / EXEC / DISCARD / WATCH。
 假设我们通过 WATCH 命令在事务执行之前监控了多个 keys ，倘若在 WATCH 之后有任何 Key 的值发生了变化，EXEC 命令执行的事务都将被放弃，同时返回 `nil` 应答以通知调用者事务执行失败。
 
 和关系型数据库中的事务相比，在 Redis 事务中如果有某一条命令执行失败，其后的**命令仍然会被继续执行**。
+
+watch key1 key2 ... : 监视一或多个key,如果在事务执行之前，被监视的key被其他命令改动，则事务被打断 （ 类似乐观锁 ）
+
+multi : 标记一个事务块的开始（ queued ）
+
+exec : 执行所有事务块的命令 （ 一旦执行exec后，之前加的监控锁都会被取消掉 ）　
+
+discard : 取消事务，放弃事务块中的所有命令
+
+unwatch : 取消watch对所有key的监控
 
 #### 说说 Redis 都有哪些应用场景？
 
