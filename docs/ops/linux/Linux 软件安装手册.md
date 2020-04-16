@@ -164,3 +164,23 @@ update user set host = '%' where user = 'root';
 select host, user from user;
 ```
 
+`/etc/my.conf`
+
+```shell
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+skip-grant-tables
+pid-file=/var/run/mysqld/mysqld.pid
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+```
+
+**创建表**
+
+使用 utf-8和 utf8_general_ci 编码格式
+
