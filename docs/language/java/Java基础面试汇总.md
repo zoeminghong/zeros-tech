@@ -462,7 +462,7 @@ Java 中可以创建 `volatile` 类型数组，**不过只是一个指向数组�
 
 活锁，任务或者执行者没有被阻塞，由于某些条件没有满足，导致一直重复尝试，失败，尝试，失败。
 
-#### 锁与活锁的区别？
+#### 死锁与活锁的区别？
 
 活锁和死锁的区别在于，处于活锁的实体是在不断的改变状态，所谓的“活”，**而处于死锁的实体表现为等待；活锁有可能自行解开，死锁则不能。**
 
@@ -496,7 +496,7 @@ Java 中可以创建 `volatile` 类型数组，**不过只是一个指向数组�
 
 #### 什么是 AQS ？
 
-`java.util.concurrent.locks.AbstractQueuedSynchronizer` 抽象类，简称 AQS ，是一个用于构建锁和同步容器的同步器。事实上`concurrent` 包内许多类都是基于 AQS 构建。例如 ReentrantLock，Semaphore，CountDownLatch，ReentrantReadWriteLock等。AQS 解决了在实现同步容器时设计的大量细节问题。
+`java.util.concurrent.locks.AbstractQueuedSynchronizer` 抽象类，简称 AQS ，AQS则实现了对**同步状态的管理，以及对阻塞线程进行排队，等待通知**等等一些底层的实现处理。AQS的核心包括这些方面:**同步队列，独占式锁的获取和释放，共享锁的获取和释放以及可中断锁，超时等待锁获取这些特性的实现** ，事实上`concurrent` 包内许多类都是基于 AQS 构建。例如 ReentrantLock，Semaphore，CountDownLatch，ReentrantReadWriteLock等。AQS 解决了在实现同步容器时涉及的大量细节问题。
 
 AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点称作“哨兵节点”或者“哑节点”，它不与任何线程关联。其他的节点与等待线程关联，每个节点维护一个等待状态 `waitStatus` 。
 
@@ -515,7 +515,7 @@ AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点�
 
 `synchronized`、ReentrantLock 都是可重入的锁，可重入锁相对来说简化了并发编程的开发。
 
-> 简单来说，ReenTrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实现加锁。它的性能比较好也是因为避免了使线程进入内核态的阻塞状态。想尽办法避免线程进入内核的阻塞状态是我们去分析和理解锁设计的关键钥匙。
+> 简单来说，ReentrantLock 的实现是一种自旋锁，通过循环调用 CAS 操作来实现加锁。它的性能比较好也是因为避免了使线程进入内核态的阻塞状态。想尽办法避免线程进入内核的阻塞状态是我们去分析和理解锁设计的关键钥匙。
 
 #### synchronized 和 ReentrantLock 异同？
 
@@ -528,13 +528,13 @@ AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点�
     - ReentrantLock 通过CAS、AQS（AbstractQueuedSynchronizer）和 LockSupport（用于阻塞和解除阻塞）实现同步。
   - 可见性实现机制不同
     - `synchronized` 依赖 JVM 内存模型保证包含共享变量的多线程内存可见性。
-    - ReentrantLock 通过 ASQ 的 `volatile state` 保证包含共享变量的多线程内存可见性。
+    - ReentrantLock 通过 AQS 的 `volatile state` 保证包含共享变量的多线程内存可见性。
   - 使用方式不同
     - `synchronized` 可以修饰实例方法（锁住实例对象）、静态方法（锁住类对象）、代码块（显示指定锁对象）。
     - ReentrantLock 显示调用 tryLock 和 lock 方法，需要在 `finally` 块中释放锁。
   - 功能丰富程度不同
     - `synchronized` 不可设置等待时间、不可被中断（interrupted）。
-    - ReentrantLock 提供有限时间等候锁（设置过期时间）、可中断锁（lockInterruptibly）、condition（提供 await、condition（提供 await、signal 等方法）等丰富功能
+    - ReentrantLock 提供有限时间等候锁（设置过期时间）、可中断锁（lockInterruptibly）、condition（提供 await、condition）等丰富功能
   - 锁类型不同
     - `synchronized` 只支持非公平锁。
     - ReentrantLock 提供公平锁和非公平锁实现。当然，在大部分情况下，非公平锁是高效的选择。
@@ -683,10 +683,10 @@ Java 提供的线程安全的 Queue 可以分为
 
 具体的选择，如下：
 
-- LinkedBlockingQueue 多用于任务队列。
+- LinkedBlockingQueue 多用于**任务**队列。
   - 单生产者，单消费者
   - 多生产者，单消费者
-- ConcurrentLinkedQueue 多用于消息队列。
+- ConcurrentLinkedQueue 多用于**消息**队列。
   - 单生产者，多消费者
   - 多生产者，多消费者
 
@@ -717,7 +717,7 @@ Java 提供的线程安全的 Queue 可以分为
 
 比如说一个线程 one 从内存位置 V 中取出 A ，这时候另一个线程 two 也从内存中取出 A ，并且 two 进行了一些操作变成了 B ，然后 two 又将 V 位置的数据变成 A ，这时候线程 one 进行 CAS 操作发现内存中仍然是 A ，然后 one 操作成功。尽管线程 one 的 CAS 操作成功，但可能存在潜藏的问题。
 
-从 Java5 开始 JDK 的 `atomic`包里提供了一个类 AtomicStampedReference 来解决 ABA 问题。
+从 Java5 开始 JDK 的 `atomic`包里提供了一个类 **AtomicStampedReference** 来解决 ABA 问题。
 
 2）**循环时间长开销大**
 
@@ -729,11 +729,12 @@ Java 提供的线程安全的 Queue 可以分为
 
 #### Semaphore 是什么？
 
-Semaphore ，是一种新的同步类，它是一个计数信号。从概念上讲，从概念上讲，信号量维护了一个许可集合。
+Semaphore ，是一种新的同步类，它是一个计数信号。从概念上讲，信号量维护了一个许可集合。
 
 - 如有必要，在许可可用前会阻塞每一个 `#acquire()` 方法，然后再获取该许可。
 - 每个 `#release()` 方法，添加一个许可，从而可能释放一个正在阻塞的获取者。
 - 但是，不使用实际的许可对象，Semaphore 只对可用许可的数量进行计数，并采取相应的行动。
+- 支持 FIFO 公平模式。
 
 信号量常常用于多线程的代码中，比如数据库连接池。
 
@@ -819,8 +820,7 @@ Executors 提供了创建线程池的常用模板，实际场景下，我们可�
 
 - `corePoolSize` 参数，核心线程数大小，当线程数 < corePoolSize ，会创建线程执行任务。
 - maximumPoolSize 参数，最大线程数， 当线程数 >= corePoolSize 的时候，会把任务放入workQueue队列中。
-- keepAliveTime 参数，保持存活时间，当线程数大于 
-- corePoolSize 的空闲线程能保持的最大时间。
+- keepAliveTime 参数，保持存活时间，当线程数 >= corePoolSize 的空闲线程能保持的最大时间。
 - `unit` 参数，时间单位。
 - workQueue 参数，保存任务的阻塞队列。
 - handler 参数，超过阻塞队列的大小时，使用的拒绝策略。
@@ -905,16 +905,12 @@ Future 接口，表示异步任务，是还没有完成的任务给出的未来�
 刚创建时，里面没有线程调用 execute() 方法，添加任务时：
 
 1. 如果正在运行的线程数量小于核心参数 corePoolSize，继续创建线程运行这个任务
-
-  - 否则，如果正在运行的线程数量大于或等于 `corePoolSize` ，将任务加入到阻塞队列中。
-- 否则，如果队列已满，同时正在运行的线程数量小于核心参数 `maximumPoolSize` ，继续创建线程运行这个任务。
-   - 否则，如果队列已满，同时正在运行的线程数量大于或等于 `maximumPoolSize` ，根据设置的拒绝策略处理。
-   
-2. 完成一个任务，继续取下一个任务处理。
-
-   - 没有任务继续处理，线程被中断或者线程池被关闭时，线程退出执行，如果线程池被关闭，线程结束。
-   - 否则，判断线程池正在运行的线程数量是否大于核心线程数，如果是，线程结束，否则线程阻塞。因此线程池任务全部执行完成后，继续留存的线程池大小为 `corePoolSize` 。
-
+2. 如果正在运行的线程数量大于或等于 `corePoolSize` 。
+  1. 如果队列为阻塞队列，则先将任务放到队列中，等队列满了之后，将线程数增长到`maximumPoolSize` 值，如果任务还来不及处理，则根据设置的拒绝策略处理。
+  2. 如果队列为非阻塞队列，则将线程数增长到`maximumPoolSize` 值，如果任务还来不及处理，则追加到队列中，等待处理。
+3. 完成一个任务，继续取下一个任务处理。
+  1. 没有任务继续处理，线程被中断或者线程池被关闭时，线程退出执行，如果线程池被关闭，线程结束。
+  2. 否则，判断线程池正在运行的线程数量是否大于核心线程数，如果是，线程结束，否则线程阻塞。因此线程池任务全部执行完成后，继续留存的线程池大小为 `corePoolSize` 。
 #### 线程池中 submit 和 execute 方法有什么区别？
 
 两个方法都可以向线程池提交任务。
