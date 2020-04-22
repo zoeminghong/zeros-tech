@@ -356,6 +356,8 @@ public static native boolean holdsLock(Object obj);
 
 **同步代码块**：`monitorenter` 指令插入到同步代码块的开始位置，`monitorexit` 指令插入到同步代码块的结束位置，JVM 需要保证每一个 `monitorenter` 都有一个 `monitorexit` 与之相对应。任何对象都有一个 Monitor 与之相关联，当且一个 Monitor 被持有之后，他将处于锁定状态。线程执行到 `monitorenter` 指令时，将会尝试获取对象所对应的 Monitor 所有权，即尝试获取对象的锁。
 
+`synchronized`是无法禁止指令重排和处理器优化的，但是同一线程内的执行遵守as-if-serial语义。
+
 #### synchronized 锁优化有哪些？
 
 - 自旋锁
@@ -365,6 +367,16 @@ public static native boolean holdsLock(Object obj);
 #### 锁有哪些状态？
 
 无锁状态、偏向锁状态、轻量级锁状态、重量级锁状态
+
+#### 重量级锁
+
+synchronized其实是借助Monitor实现的，在加锁时会调用objectMonitor的enter方法，解锁的时候会调用exit方法。
+
+通过对象内部的监视器（monitor）实现，其中monitor的本质是依赖于底层操作系统的**Mutex Lock**实现，操作系统实现线程之间的切换需要从用户态到内核态的切换，切换成本非常高。
+
+Java的线程是映射到操作系统原生线程之上的，如果要阻塞或唤醒一个线程就需要操作系统的帮忙，这就要从**用户态转换到核心态**，因此状态转换需要花费很多的处理器时间，是java语言中一个重量级的操纵。
+
+
 
 #### 概述一下锁升级？
 
