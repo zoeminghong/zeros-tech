@@ -1,8 +1,44 @@
-15课
+## ES 能做什么
 
-[https://github.com/onebirdrocks/geektime-ELK/blob/master/part-1/3.7-URISearch%E8%AF%A6%E8%A7%A3/README.md](https://github.com/onebirdrocks/geektime-ELK/blob/master/part-1/3.7-URISearch详解/README.md)
+- 数据的模糊查询/精准查询（keyword/text/terms/match/match_phrase/query_string/bool）
+- 匹配度查询（explain/boosting/score）
+- 多字段匹配查询（Multi Match）
+- 查询模板（Search Template/Index Alias）
+- 自定义算分排序（Function Score Query）
+- 自动补全与纠错（Phrase Suggester/Completion Suggester ）
+- 标签化提高查询准确率（Context Suggester）
 
-例如terms查询是用于结构化数据的查询。全文用match查询。而bool属于一种复合查询。可以结合terms查询和match查询。
+## 概念
+
+keyword：字段类型设为keyword，es 不会进行分词处理。he is boy，就是 he is boy。
+
+text：字段类型设为text，es 会进行分词处理。he is boy，会变成 ["he","is","boy"]。
+
+terms：只查询分词的数据，keyword 字段，he is boy，必须 he is boy，text字段，he is boy，只能通过 he/is/boy 可以查询到，完成的 he is boy 无法查询得到
+
+match：只要有匹配的就可以被查询，keyword 字段，he is boy，必须 he is boy，text字段，he is boy， he/is/boy/he is boy 都可以被查询。
+
+match_phrase：支持模糊匹配，对顺序提出了要求，配置顺序必须相同，而且必须都是连续的。支持keyword全匹配
+
+query_string：不支持keyword查询，和match_phrase区别的是，不需要连续，顺序还可以调换。
+
+bool：符合查询，包含了must，filter，should，must_not四种。
+
+- must
+
+  返回的文档必须满足must子句的条件，并且参与计算分值
+
+- filter
+
+  返回的文档必须满足filter子句的条件。但是不会像Must一样，参与计算分值
+
+- should
+
+  返回的文档可能满足should子句的条件。在一个Bool查询中，如果没有must或者filter，有一个或者多个should子句，那么只要满足一个就可以返回。minimum_should_match参数定义了至少满足几个子句。
+
+- must_not
+
+  返回的文档必须不满足must_not定义的条件。
 
 # Search
 
@@ -483,7 +519,6 @@ tie_breaker 是一个介于 0-1 之间的浮点数。0代表使用最佳匹配�
 
   - 对于某些实体，例如人名，地址，图书信息。需要在多个字段中确定信息，单个字段只能作为整体的一部分。希望在任何这些列出的字段中找到尽可能多的词。
 
-  
 
 ```shell
 POST blogs/_search
