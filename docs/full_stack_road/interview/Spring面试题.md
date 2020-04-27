@@ -83,11 +83,13 @@ Spring 框架提供了以下四种方式来管理 bean 的生命周期事件:
 
 1. 通过构造器或工厂方法创建 Bean 实例
 2. 为 Bean 的属性设置值和对其他 Bean 的引用
-3. 将 Bean 实 例 传 递 给 Bean 后 置 处 理 器 的 postProcessBefore.Initialization 方法
-4. 调用 Bean 的初始化方法(init-method)
-5. 将 Bean 实 例 传 递 给 Bean 后 置 处 理 器 的 postProcessAfter.Initialization 方法 
-6. Bean 可以使用了
-7. 当容器关闭时, 调用 Bean 的销毁方法(destroy-method)
+3. 检查Aware相关接口并设置相关依赖
+4. 将 Bean 实 例 传 递 给 Bean 前置处理器的 postProcessBeforeInitialization 方法
+5. 调用 Bean 的初始化方法(init-method)
+6. 将 Bean 实 例 传 递 给 Bean 后置处理器的 postProcessAfterInitialization 方法 
+7. 注册必要的 Destruction 相关回调接口
+8. Bean 可以使用了
+9. 当容器关闭时, 调用 Bean 的销毁方法(destroy-method)
 
 ### 三种初始化方式？
 
@@ -105,13 +107,13 @@ DisposableBean、@PreDestroy、destroy-method
 
 ### Spring中用了哪些设计模式？
 
-工厂模式： Spring使用工厂模式通过 BeanFactory、ApplicationContext 创建 bean 对象
-模板模式：Spring 中 jdbcTemplate、hibernateTemplate 
-观察者模式：事件驱动
-适配器模式 :Spring AOP 的增强或通知(Advice)使用到了适配器模式、spring MVC 中也是用到了适配器模式适配Controller
-代理模式：Spring AOP 功能的实现
-单例设计模式 : Spring 中的 Bean 默认都是单例的。
-包装器设计模式 : 我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要会去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源。
+- 工厂模式： Spring使用工厂模式通过 BeanFactory、ApplicationContext 创建 bean 对象
+- 模板模式：Spring 中 jdbcTemplate、hibernateTemplate 
+- 观察者模式：事件驱动
+- 适配器模式 :Spring AOP 的增强或通知(Advice)使用到了适配器模式、spring MVC 中也是用到了适配器模式适配Controller
+- 代理模式：Spring AOP 功能的实现
+- 单例设计模式 : Spring 中的 Bean 默认都是单例的。
+- 包装器设计模式 : 我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要会去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源。
 
 ### **Spring Bean** 的作用域之间有什么区别?
 
@@ -162,6 +164,10 @@ DisposableBean、@PreDestroy、destroy-method
 
 IOC: Invert Of Control, 控制反转. 也成为 DI(依赖注入)其思想是反转资源获取的方向. 传统 的资源查找方式要求组件向容器发起请求查找资源.作为回应, 容器适时的返回资源. **而应用了 IOC 之后, 则是容器主动地将资源推送给它所管理的组件**,组件所要做的仅是选择一种合适的方式 来接受资源. 这种行 为也被称为查找的被动形式
 
+IoC（Inverse of Control:控制反转）是一种**设计思想**，就是**将原本在程序中手动创建对象的控制权，交由Spring框架来管理。**
+
+IoC 容器实际上就是个Map（key，value）,Map 中存放的是各种对象。 **IOC 容器就像是一个工厂一样，当我们需要创建一个对象的时候，只需要配置好配置文件/注解即可，完全不用考虑对象是如何被创建出来的。**
+
 ### @Import注解的三种使用方式
 
 https://www.cnblogs.com/yichunguo/p/12122598.html
@@ -175,3 +181,45 @@ https://www.cnblogs.com/yichunguo/p/12122598.html
 ### Spring 拦截器的实现？
 
 调用入口是 DispatcherServlet 类的 doDispatch 方法中调用 HandlerExecutionChain 中的applyPreHandle、applyPostHandle、triggerAfterCompletion等方法。
+
+### Spring AOP 和 AspectJ AOP 有什么区别？
+
+**Spring AOP 属于运行时增强，而 AspectJ 是编译时增强。** Spring AOP 基于代理(Proxying)，而 AspectJ 基于字节码操作(Bytecode Manipulation)。
+
+如果我们的切面比较少，那么两者性能差异不大。但是，当切面太多的话，最好选择 AspectJ ，它比Spring AOP 快很多。
+
+### Spring 管理事务的方式有几种？
+
+编程式事务，在代码中硬编码。(不推荐使用)声明式事务，在配置文件中配置（推荐使用）
+
+声明式事务又分为两种：
+
+- 基于XML的声明式事务
+- 基于注解的声明式事务
+
+### Spring 事务中的隔离级别有哪几种?
+
+TransactionDefinition 接口中定义了五个表示隔离级别的常量：
+
+- TransactionDefinition.ISOLATION_DEFAULT: 使用后端数据库默认的隔离级别，Mysql 默认采用的 REPEATABLE_READ隔离级别 Oracle 默认采用的 READ_COMMITTED隔离级别. 
+- TransactionDefinition.ISOLATION_READ_UNCOMMITTED: 最低的隔离级别，允许读取尚未提交的数据变更，**可能会导致脏读、幻读或不可重复读** 
+- TransactionDefinition.ISOLATION_READ_COMMITTED:允许读取并发事务已经提交的数据，**可以阻止脏读，但是幻读或不可重复读仍有可能发生** 
+- TransactionDefinition.ISOLATION_REPEATABLE_READ:对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，**可以阻止脏读和不可重复读，但幻读仍有可能发生。** 
+- TransactionDefinition.ISOLATION_SERIALIZABLE:最高的隔离级别，完全服从ACID的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，**该级别可以防止脏读、不可重复读以及幻读**。但是这将严重影响程序的性能。通常情况下也不会用到该级别。
+
+### FactoryBean与BeanFactory区别
+
+BeanFactory是IOC最基本的容器，负责生成和管理bean，它为其他具体的IOC容器提供了最基本的规范
+
+FactoryBean是一个接口，当在IOC容器中的Bean实现了FactoryBean后，通过getBean(String BeanName)获取到的Bean对象并不是FactoryBean的实现类对象，而是这个实现类中的getObject()方法返回的对象。要想获取FactoryBean的实现类，就要getBean(&BeanName)，在BeanName之前加上&。
+
+### 什么是 Spring Bean？
+
+Spring beans 就是被 Spring 容器所管理的 Java 对象。
+
+### 什么是 Spring 容器？
+
+Spring 容器负责实例化，配置和装配 Spring beans。
+
+`org.springframework.context.ApplicationContext` 表示Spring IoC容器，负责实例化，配置和组装上述 bean。容器通过读取配置元数据获取有关要实例化，配置和组装的对象的指令。配置元数据通常以XML，Java 注解或代码的形式表示。
+
