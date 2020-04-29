@@ -212,14 +212,3 @@ TransactionDefinition 接口中定义了五个表示隔离级别的常量：
 BeanFactory是IOC最基本的容器，负责生成和管理bean，它为其他具体的IOC容器提供了最基本的规范
 
 FactoryBean是一个接口，当在IOC容器中的Bean实现了FactoryBean后，通过getBean(String BeanName)获取到的Bean对象并不是FactoryBean的实现类对象，而是这个实现类中的getObject()方法返回的对象。要想获取FactoryBean的实现类，就要getBean(&BeanName)，在BeanName之前加上&。
-
-### 什么是 Spring Bean？
-
-Spring beans 就是被 Spring 容器所管理的 Java 对象。
-
-### 什么是 Spring 容器？
-
-Spring 容器负责实例化，配置和装配 Spring beans。
-
-`org.springframework.context.ApplicationContext` 表示Spring IoC容器，负责实例化，配置和组装上述 bean。容器通过读取配置元数据获取有关要实例化，配置和组装的对象的指令。配置元数据通常以XML，Java 注解或代码的形式表示。
-

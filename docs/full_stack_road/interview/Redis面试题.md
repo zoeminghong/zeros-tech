@@ -77,6 +77,11 @@ Redis 提供 RDB 和 AOF 两种数据的持久化存储方案，解决内存数�
 
  Redis 是非阻塞 IO ，多路复用
 
+#### 什么是非阻塞多路 I/O 复用机制？
+
+I/O 多路复用实际上是指多个连接的管理可以在同一进程。多路是指网络连接，复用只是同一个线程。在网络服务中，I/O 多路复用起的作用是一次性把多个连接的事件通知业务代码处理，处理的方式由业务代码来决定，该方法就会返回可读 / 写的 FD 个数。
+Redis 使用 epoll 作为 I/O 多路复用技术的实现，再加上 Redis 自身的事件处理模型将 epoll 的 read、write、close 等都转换成事件，不在网络 I/O 上浪费过多的时间，从而实现对多个 FD 读写的监控，提高性能。
+
 #### 讲一下文件事件处理器的结构包含哪些？
 
 - 多个 Socket 。
@@ -236,6 +241,17 @@ AOF 重写可以由用户通过调用 [BGREWRITEAOF](http://redis.readthedocs.or
 7. volatile-lfu
 8. allkeys-lfu
 
+#### 为什么 Redis 可以做分布式锁？
+
+Redis能做分布式锁是因为Redis的命令(不包括事务)遵循原子性。保证了在多个实例竞争一个锁时，只有其中一个实例能获取到锁。
+
+#### 有哪些可以作为分布式锁呢？
+
+ZK，MySQL
+
+- 从可靠性上来说，Zookeeper 分布式锁好于 Redis 分布式锁。
+- 从性能上来说，Redis 分布式锁好于 Zookeeper 分布式锁。
+
 #### 如何使用 Redis 实现分布式锁？
 
 1. setnx(lockkey, 当前时间+过期超时时间) ，如果返回1，则获取锁成功；如果返回0则没有获取到锁，转向2。
@@ -247,7 +263,13 @@ AOF 重写可以由用户通过调用 [BGREWRITEAOF](http://redis.readthedocs.or
 
 https://blog.csdn.net/abbc7758521/article/details/77990048
 
+#### 如何防止锁丢失呢
+
 Redis 分布式锁丢失问题，Redlock 方案。**需要至少在 `N/2 + 1` Redis 节点获得锁成功。**
+
+在 Redis 的分布式环境中，我们假设有 N 个 Redis master 。这些节点完全互相独立，不存在主从复制或者其他集群协调机制。
+
+http://svip.iocoder.cn/Redisson/RedLock/?self
 
 #### 什么是 Redis 事务？
 
