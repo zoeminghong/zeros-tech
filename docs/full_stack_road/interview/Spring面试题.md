@@ -18,7 +18,7 @@ Spring 容器负责实例化，配置和装配 Spring beans。
 
 **ApplicationContext 接口**
 
-它继承了 BeanFactory 接口，所以 ApplicationContext 包含 BeanFactory 的所有功能以及更多功能！它的主要功能是支持大型的业务应用的创建**特性：**
+它继承了 BeanFactory 接口，所以 ApplicationContext 包含 BeanFactory 的所有功能以及更多功能！它的主要功能是支持大型的业务应用的创建特性：
 
 - Bean instantiation/wiring
 - Bean 的实例化/串联
@@ -62,9 +62,9 @@ init-method 反射方式
 
 控制反转（Inversion of Control） 就是依赖倒置原则的一种代码设计的思路。具体采用的方法就是所谓的依赖注入（Dependency Injection）。上层需要什么，底层提供什么。
 
-控制反转是一种以给予应用程序中目标组件更多控制为目的设计范式，并在我们的实际工作中起到 了有效的作用。
+控制反转是一种以给予**应用程序中目标组件更多控制为目的设计范式**，并在我们的实际工作中起到 了有效的作用。
 
-依赖注入是在编译阶段尚未知所需的功能是来自哪个的类的情况下，将其他对象所依赖的功能对象 实例化的模式。
+依赖注入是在编译阶段尚未知所需的功能是来自哪个的类的情况下，将其他对象所依赖的功能对象实例化的模式。
 
 1. 构造器注入
 
@@ -139,7 +139,7 @@ DisposableBean、@PreDestroy、destroy-method
 
 ### **Spring** 框架中的单例 **Beans** 是线程安全的么?
 
- Spring 框架并没有对单例 bean 进行任何多线程的封装处理。关于单例 bean 的线程安全和并发问题需要**开发者自行去搞定**。但实际上，大部分的 Spring bean 并**没有可变的状态**(比如 Service 类 和 DAO 类)，所以在某种程度上说 Spring 的单例 bean 是线程安全的。如果你的 bean 有多种状 态的话(比如 View Model 对象)，就需要自行保证线程安全。
+ Spring 框架并没有对单例 bean 进行任何多线程的封装处理。关于单例 bean 的线程安全和并发问题需要**开发者自行去搞定**。但实际上，大部分的 Spring bean 并**没有可变的状态**(比如 Service 类 和 DAO 类)，所以在某种程度上说 Spring 的单例 bean 是线程安全的。如果你的 bean 有多种状态的话(比如 View Model 对象)，就需要自行保证线程安全。
  最浅显的解决办法就是**将多态 bean 的作用域由“singleton”变更为“prototype”。**
 
 ### 请解释 **Spring Bean** 的自动装配?
@@ -162,7 +162,7 @@ DisposableBean、@PreDestroy、destroy-method
 
  **AOP:**Aspect Oriented Program, 面向(方面)切面的编程;Filter(过滤器) 也是一种 AOP. AOP 是一种 新的方法论, 是对传统 OOP(Object-Oriented Programming, 面向对象编程) 的补充. AOP 的 主要编程对象是切面(aspect), 而切面模块化横切关注点.可以举例通过事务说明.
 
-IOC: Invert Of Control, 控制反转. 也成为 DI(依赖注入)其思想是反转资源获取的方向. 传统 的资源查找方式要求组件向容器发起请求查找资源.作为回应, 容器适时的返回资源. **而应用了 IOC 之后, 则是容器主动地将资源推送给它所管理的组件**,组件所要做的仅是选择一种合适的方式 来接受资源. 这种行 为也被称为查找的被动形式
+IOC: Invert Of Control, 控制反转. 也成为 DI(依赖注入)其思想是反转资源获取的方向. 传统的资源查找方式要求组件向容器发起请求查找资源.作为回应, 容器适时的返回资源. **而应用了 IOC 之后, 则是容器主动地将资源推送给它所管理的组件**,组件所要做的仅是选择一种合适的方式 来接受资源. 这种行 为也被称为查找的被动形式
 
 IoC（Inverse of Control:控制反转）是一种**设计思想**，就是**将原本在程序中手动创建对象的控制权，交由Spring框架来管理。**
 
