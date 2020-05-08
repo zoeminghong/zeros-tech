@@ -84,16 +84,27 @@ threadLocalMap 初始大小为16，当容量超过2/3时会自动扩容。
 如下，我们在主线程中创建一个 InheritableThreadLocal 的实例，然后在子线程中得到这个 InheritableThreadLocal 实例设置的值。
 
 ```java
-`private void testInheritableThreadLocal() {     final ThreadLocal threadLocal = new InheritableThreadLocal();     threadLocal.set("droidyue.com");     Thread t = new Thread() {         @Override         public void run() {             super.run();             Log.i(LOGTAG, "testInheritableThreadLocal =" + threadLocal.get());         }     };      t.start(); } `
+private void testInheritableThreadLocal() {     
+ final ThreadLocal threadLocal = new InheritableThreadLocal();     
+  threadLocal.set("droidyue.com");    
+  Thread t = new Thread() {         
+    @Override         
+    public void run() {            
+      super.run();             
+      Log.i(LOGTAG, "testInheritableThreadLocal =" + threadLocal.get());         
+    }     
+  };      
+  t.start(); 
+} 
 ```
 
 上面的代码输出的日志信息为
 
 ```shell
-`I/MainActivity( 5046): testInheritableThreadLocal =droidyue.com `
+I/MainActivity( 5046): testInheritableThreadLocal =droidyue.com
 ```
 
-使用 InheritableThreadLocal 可以将某个线程的 ThreadLocal 值在其子线程创建时传递过去。因为在线程创建过程中，有相关的处理逻辑。
+使用 InheritableThreadLocal 可以将某个线程的 ThreadLocal 值在其子线程创建时传递过去。因为在线程创建过程中，有相关的处理逻辑。子线程中会复制主线程中的ThreadLocal实例数据，从而实现父线程数据传递到子线程。
 
 ### 内存泄漏问题
 
@@ -146,7 +157,7 @@ ThreadLocalMap的getEntry函数的流程大概为：
 如果e为null或者key不一致则向下一个位置查询，如果下一个位置的key和当前需要查询的key相等，则返回对应的Entry。否则，如果key值为null，则擦除该位置的Entry，并继续向下一个位置查询。在这个过程中遇到的key为null的Entry都会被擦除，那么Entry内的value也就没有强引用链，自然会被回收。仔细研究代码可以发现，set操作也有类似的思想，将key为null的这些Entry都删除，防止内存泄露。
 　　但是光这样还是不够的，上面的设计思路依赖一个前提条件：要调用ThreadLocalMap的getEntry函数或者set函数。这当然是不可能任何情况都成立的，**所以很多情况下需要使用者手动调用ThreadLocal的remove函数**，手动删除不再需要的ThreadLocal，防止内存泄露。所以JDK建议将ThreadLocal变量定义成**private static**的，这样的话ThreadLocal的生命周期就更长，由于一直存在ThreadLocal的强引用，所以ThreadLocal也就不会被回收，也就能保证任何时候都能根据ThreadLocal的弱引用访问到Entry的value值，然后remove它，防止内存泄露。
 
-为什么要不断往后找key为null的情况呢，首先这个threadLocalHashCode是有规律，不断往后累加的，如果在前面的entity中存在为空的情况，也就意味着后面值也有可能存在为null的情况。
+<u>为什么要不断往后找key为null的情况呢，首先这个threadLocalHashCode是有规律，不断往后累加的，如果在前面的entity中存在为空的情况，也就意味着后面值也有可能存在为null的情况。</u>
 
 **6、ThreadLocalMap 结构？**
 
@@ -166,8 +177,12 @@ private static int nextHashCode() {
 ```
 
 对于每一个ThreadLocal对象，都有一个final修饰的int型的threadLocalHashCode不可变属性，对于基本数据类型，可以认为它在初始化后就不可以进行修改，所以可以唯一确定一个ThreadLocal对象。
-　　但是如何保证两个同时实例化的ThreadLocal对象有不同的threadLocalHashCode属性：在ThreadLocal类中，还包含了一个static修饰的AtomicInteger（[əˈtɒmɪk]提供原子操作的Integer类）成员变量（即类变量）和一个static final修饰的常量（作为两个相邻nextHashCode的差值）。由于nextHashCode是类变量，所以每一次调用ThreadLocal类都可以保证nextHashCode被更新到新的值，并且下一次调用ThreadLocal类这个被更新的值仍然可用，同时AtomicInteger保证了nextHashCode自增的原子性。
+　　但是如何保证两个同时实例化的ThreadLocal对象有不同的threadLocalHashCode属性：在ThreadLocal类中，还包含了一个static修饰的AtomicInteger（提供原子操作的Integer类）成员变量（即类变量）和一个static final修饰的常量（作为两个相邻nextHashCode的差值）。由于nextHashCode是类变量，所以每一次调用ThreadLocal类都可以保证nextHashCode被更新到新的值，并且下一次调用ThreadLocal类这个被更新的值仍然可用，同时AtomicInteger保证了nextHashCode自增的原子性。
 
 **8、为什么不直接用线程id来作为ThreadLocalMap的key？**
 
 在一个线程多个ThreadLocal对象时，就无法进行区分了。
+
+**9、ThreadLocal 解决冲突的方法是什么？**
+
+通过再Hash方式，不断往后加1。
