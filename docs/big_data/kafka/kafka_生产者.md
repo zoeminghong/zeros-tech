@@ -102,8 +102,8 @@ public void onAcknowledgement(RecordMetadata metadata, Exception exception);
 
 - 如果消息 ProducerRecord 中指定了 partition 字段，那么就不需要分区器的作用了。
 - 默认分区器会对 key 进行哈希（MurmurHash2算法，高性能和低碰撞率），这里的**分区类型为 AR**，因而可能存在发送数据失败重试的可能。
-- 如果 key 为 null，那么消息会通过轮询的方式发往主体内的各个**可用的分区（ISR）**。
-- 如果出现分区数量的增加的情况（Kafka 支持创建主题之后，新增分区，减少分区不支持），就很难保证key与分区之间的映射关系了。
+- 如果 key 为 null，那么消息会通过轮询的方式发往主题内的各个**可用的分区（ISR）**。
+- 如果出现分区数量的增加的情况（Kafka 支持创建主题之后，新增分区，减少分区不支持），就很难保证key与分区之间的映射关系了，可能会出现分区顺序无法保障。
 
 ### RecordAccumulator 消息累加器
 
