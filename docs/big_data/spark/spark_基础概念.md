@@ -2,7 +2,7 @@
 
 介绍Spark中的一些概念：
 
-- RDD（resillient distributed dataset）：弹性分布式数据集。Spark应用程序通过使用Spark的转换API可以将RDD封装为一系列具有血缘关系的RDD，也就是DAG。只有通过Spark的动作API才会将RDD及其DAG提交到DAGScheduler。RDD的祖先一定是一个跟数据源相关的RDD，负责从数据源迭代读取数据。
+- RDD（resillient distributed dataset）：弹性分布式数据集。是一个不可变、可分区、里面的元素可以并行操作的集合。数据被分布式方式进行存储。Spark应用程序通过使用Spark的转换API可以将RDD封装为一系列具有血缘关系的RDD，也就是DAG。只有通过Spark的动作API才会将RDD及其DAG提交到DAGScheduler。RDD的祖先一定是一个跟数据源相关的RDD，负责从数据源迭代读取数据。
 - DAG（Directed Acycle graph）：有向无环图。在图论中，如果一个有向图无法从某个顶点出发经过若干条边回到该点，则这个图是一个有向无环图（DAG图）。Spark使用DAG来反映各RDD之间的依赖或血缘关系。
 - Partition：数据分区。即一个RDD的数据可以划分为多少个分区。Spark根据Partition的数量来确定Task的数量。
 - NarrowDependency：窄依赖。即子RDD依赖于父RDD中固定的Partition。NarrowDependency分为OneToOneDependency和RangeDependency两种。
@@ -98,3 +98,18 @@ dop_visit_info.createOrReplaceTempView("dop_visit_info")
 ## 算子
 
 https://blog.csdn.net/tanggao1314/article/details/51582017
+
+
+
+## 问题
+
+### RDD 的弹性体现在哪里？
+
+RDD 数据可以存储在内存或者硬盘中。
+
+### RDD 的五大特性？
+
+- 一个RDD 可以有很多分区，后期 Spark 的任务是以RDD的分区为单位，一个分区对应一个task线程，spark 任务最后是以task方式运行在work节点上的execute进程中。
+- 每个函数作用于每一个分区上
+- 一个rdd会依赖于其他多个rdd，这里就涉及rdd与rdd之间的关系，spark的容错机制就根据这个特性来的
+- 对于kv类型的rdd才有分区函数，

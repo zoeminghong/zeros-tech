@@ -35,7 +35,7 @@ foo-1
 ### segment文件存储结构
 
 - segment file 组成：由2大部分组成，分别为 index file 和 data file，此2个文件一一对应，成对出现，后缀".index"和“.log”分别表示为 segment 索引文件、数据文件.
-- segment 文件命名规则：partion 全局的第一个 segment 从 0 开始，后续每个 segmen t文件名为上一个 segmen t文件最后一条消息的 offset 值。数值最大为64位long大小，19位数字字符长度，没有数字用0填充。
+- segment 文件命名规则：partion 全局的第一个 segment 从 0 开始，后续每个 segment 文件名为上一个 segment 文件最后一条消息的 offset 值。数值最大为64位long大小，19位数字字符长度，没有数字用0填充。
 - 根据offset **二分查找** 文件列表，采取 **稀疏索引存储** 方式，稀疏索引为数据文件的每个对应message设置一个元数据指针,它比稠密索引节省了更多的存储空间，但查找起来需要消耗更多的时间。
 
 ![image-20190320212115102](assets/image-20190320212115102.png)
@@ -81,9 +81,9 @@ Kafka 分布式的单位是 partition，同一个partition用一个 write ahead 
 
 ### 分区自动平衡
 
-分区自动平衡是通过将分区的优先副本选为分区的 Leader。发生于 Kafka 部分节点放生宕机，导致部分主题进行 Leader 选举。
+分区自动平衡是通过将分区的优先副本选为分区的 Leader。发生于 Kafka 部分节点发生宕机，导致部分主题进行 Leader 选举。
 
-遍历当前所有可用副本，轮询所有代理节点，以判断该节点的分区是否需要进行优先副本选举。判断条件是计算每个代理的分区不平衡率 imbalanceRatio 是否超过了 `leader.imbalance.per.broker.percentage` 配置的比率，默认是 10%。不平衡率是指每个代理上的分区 Leader 不是优先副本的分区总数 totalTopicPartitionsNotLedByBroker 与该代理上的分区总数的壁纸。若不平衡率超过了${leader.imbalance.per.broker.percentage}/100，且没有分区正在进行重分配和优先副本选举操作以及当前没有执行删除主题操作，则调用 onPreferredReplicaElection 方法，执行优先副本选举，让优先副本成为分区的 Leader。
+遍历当前所有可用副本，轮询所有代理节点，以判断该节点的分区是否需要进行优先副本选举。判断条件是计算每个代理的分区不平衡率 imbalanceRatio 是否超过了 `leader.imbalance.per.broker.percentage` 配置的比率，默认是 10%。不平衡率是指每个代理上的分区 Leader 不是优先副本的分区总数 totalTopicPartitionsNotLedByBroker 与该代理上的分区总数的比值。若不平衡率超过了${leader.imbalance.per.broker.percentage}/100，且没有分区正在进行重分配和优先副本选举操作以及当前没有执行删除主题操作，则调用 onPreferredReplicaElection 方法，执行优先副本选举，让优先副本成为分区的 Leader。
 
 ### 分区副本重分配
 
