@@ -453,3 +453,4 @@ Master会定期的去清理这个文件，如果当这个WAL不需要作为用�
 ### 请描述如何解决HBase中region太小和region太大带来的冲突？
 
  Region过大会发生多次compaction，将数据读一遍并重写一遍到hdfs 上，占用io，region过小会造成多次split，region 会下线，影响访问服务，最佳的解决方法是调整hbase.hregion. max.filesize 为256m。
+
