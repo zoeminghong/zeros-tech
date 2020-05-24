@@ -357,6 +357,45 @@ unwatch : 取消watch对所有key的监控
 
 使用 sortedset，使用时间戳做 score, 消息内容作为 key,调用 zadd 来生产消息，消费者 使用 zrangbyscore 获取 n 秒之前的数据做轮询处理。
 
+### Redis 集群模式
+
+**cluser**
+
+redis-cluster采用无中心结构，每个节点保存数据和整个集群状态，每个节点都和其他节点连接。redis-cluster是一种服务端分片技术。
+
+redis-cluster特点：
+
+1. 每个节点都和n-1个节点通信，这被称为集群总线（cluster bus）。它们使用特殊的端口号，即对外服务端口号加10000。所以要维护好这个集群的每个节点信息，不然会导致整个集群不可用，其内部采用特殊的二进制协议优化传输速度和带宽。
+2. redis-cluster把所有的物理节点映射到[0,16383]slot（槽）上，cluster负责维护node--slot--value。
+3. 集群预分好16384个桶，当需要在redis集群中插入数据时，根据CRC16(KEY) mod 16384的值，决定将一个key放到哪个桶中。
+4. 客户端与redis节点直连，不需要连接集群所有的节点，连接集群中任何一个可用节点即可。
+5. redis-trib.rb脚本（rub语言）为集群的管理工具，比如自动添加节点，规划槽位，迁移数据等一系列操作。
+6. 节点的fail是通过集群中超过半数的节点检测失效时才生效。
+
+整个cluster被看做是一个整体，客户端可连接任意一个节点进行操作，当客户端操作的key没有分配在该节点上时，redis会返回转向指令，指向正确的节点。
+
+为了增加集群的可访问性，官方推荐的方案是将node配置成主从结构，即一个master主节点，挂n个slave从节点。如果主节点失效，redis cluster会根据选举算法从slave节点中选择一个上升为master节点，整个集群继续对外提供服务。
+
+**Sentinel哨兵**
+
+Sentinel（哨兵）是Redis的高可用性解决方案：由一个或多个Sentinel实例组成的Sentinel系统可以监视任意多个主服务器以及这些主服务器下的所有从服务器，并在被监视的主服务器进入下线状态时，自动将下线主服务器属下的某个从服务器升级为新的主服务器。
+
+Sentinel的工作方式
+
+每个Sentinel以每秒钟一次的频率向它所知的Master、Slave以及其他Sentinel实例发送一个PING命令。
+
+如果一个实例距离最后一次有效回复PING命令的时间超过down-after-milliseconds选项所指定的值，则这个实例会被Sentinel标记为主观下线。
+
+如果一个Master被标记为主观下线，则正在监视这个Master的所有Sentinel要以每秒一次的频率确认Master的确进入了主观下线状态。
+
+当有足够数量的Sentinel（大于等于配置文件指定的值）在指定的时间范围内确认Master的确进入了主观下线状态，则Master会被标记为客观下线。
+
+在一般情况下，每个Sentinel会以每10秒一次的频率向它所知的所有Master、Slave发送INFO命令。
+
+当Master被Sentinel标记为客观下线时，Sentinel向下线的Master的所有Slave发送INFO命令的频率会从10秒一次改为每秒一次。
+
+若没有足够数量的Sentinel同意Master已经下线，Master的客观下线状态就会被移除。若Master重新向Sentinel的PING命令返回有效值，Master的主观下线状态就会被移除。
+
 ## 推荐文章
 
 - [RDB](https://redisbook.readthedocs.io/en/latest/internal/rdb.html)

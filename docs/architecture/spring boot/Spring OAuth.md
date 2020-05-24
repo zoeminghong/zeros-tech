@@ -20,3 +20,20 @@ https://my.oschina.net/merryyou/blog/1612112
     }
 ```
 
+https://blog.csdn.net/AaronSimon/article/details/84071811
+
+
+
+https://conyli.cc/archives/2623#con3
+
+
+
+https://github.com/lenve/javaboy-code-samples/blob/master/jwt-demo/src/main/java/org/javaboy/jwt/config/SecurityConfig.java
+
+
+
+https://juejin.im/post/5df4f5536fb9a0166243623c#hinterceptor-2
+
+
+
+https://blog.csdn.net/nangongyanya/article/details/82150848

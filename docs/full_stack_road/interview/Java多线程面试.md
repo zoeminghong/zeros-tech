@@ -297,7 +297,7 @@ Executors 提供了创建线程池的常用模板，实际场景下，我们可�
 ThreadPoolExecutor 默认有四个拒绝策略：
 
 - `ThreadPoolExecutor.AbortPolicy()` ，直接抛出异常 RejectedExecutionException 。
-- `ThreadPoolExecutor.CallerRunsPolicy()` ，直接调用 run 方法并且阻塞执行。
+- `ThreadPoolExecutor.CallerRunsPolicy()` ，使用当前线程执行任务。
 - `ThreadPoolExecutor.DiscardPolicy()` ，直接丢弃后来的任务。
 - `ThreadPoolExecutor.DiscardOldestPolicy()` ，丢弃在队列中队首的任务。
 
@@ -680,6 +680,42 @@ Java 提供的线程安全的 Queue 可以分为
 
 AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点称作“哨兵节点”或者“哑节点”，它不与任何线程关联。其他的节点与等待线程关联，每个节点维护一个等待状态 `waitStatus` 。
 
+`AQS`中 维护了一个`volatile int state`（代表共享资源）和一个`FIFO`线程等待队列（多线程争用资源被阻塞时会进入此队列）。
+
+这里`volatile`能够保证多线程下的可见性，当`state=1`则代表当前对象锁已经被占有，其他线程来加锁时则会失败，加锁失败的线程会被放入一个`FIFO`的等待队列中，比列会被`UNSAFE.park()`操作挂起，等待其他获取锁的线程释放锁才能够被唤醒。
+
+另外`state`的操作都是通过`CAS`来保证其并发修改的安全性。
+
+**重入锁实现：**
+
+在进行tryAcquire时，会先获取当前state值，如果不为0则说明当前对象的锁已经被其他线程所占有，接着判断占有锁的线程是否为当前线程，如果是则累加`state`值，这就是可重入锁的具体实现，累加`state`值，释放锁的时候也要依次递减`state`值。
+
+**唤醒队列中的线程**
+
+1. 先将state设为0
+2. 调用 LockSupport.unpark 唤醒在 headNode 后面的Node线程
+3. 调用LockSupport.park 挂起 步骤2 中Node线程之后的Node
+
+如果第二步唤醒失败，会被继续挂起。
+
+**非公平锁会出现在哪里**
+
+当线程一释放锁的时候，理论上应该队列里的线程二获取锁，但如果这个时候外部还有一个线程三也在调用tryAcquire方法获取锁时，就可能存在非公平的情况出现。
+
+**公平锁如何实现**
+
+判断`AQS`等待队列中是否有元素存在，如果存在其他等待线程，那么自己也会加入到等待队列尾部，做到真正的先来后到，有序加锁。
+
+**获得锁的条件**
+
+- state为0或者当前锁的线程不是当前线程（如果是就重入锁，state+1）
+
+**非公平锁和公平锁的区别：**
+
+**非公平锁**性能高于**公平锁**性能。**非公平锁**可以减少`CPU`唤醒线程的开销，整体的吞吐效率会高点，`CPU`也不必取唤醒所有线程，会减少唤起线程的数量
+
+**非公平锁**性能虽然优于**公平锁**，但是会存在导致**线程饥饿**的情况。在最坏的情况下，可能存在某个线程**一直获取不到锁**。不过相比性能而言，饥饿问题可以暂时忽略，这可能就是`ReentrantLock`默认创建非公平锁的原因之一了。
+
 ### Lock 接口
 
 `java.util.concurrent.locks.Lock` 接口，比 `synchronized` 提供更具拓展行的锁操作。它允许更灵活的结构，可以具有完全不同的性质，并且可以支持多个相关类的条件对象。它的优势有：
@@ -712,9 +748,18 @@ ReadWriteLock 对程序性能的提高主要受制于如下几个因素：
 
 #### Condition
 
-在没有 Lock 之前，我们使用 `synchronized` 来控制同步，配合 Object 的 `#wait()`、`#notify()` 等一系列方法可以实现**等待 / 通知模式**。在 Java SE 5 后，Java 提供了 Lock 接口，相对于 `synchronized` 而言，Lock 提供了条件 Condition ，对线程的等待、唤醒操作更加详细和灵活。下图是 Condition 与 Object 的监视器方法的对比（摘自《Java并发编程的艺术》）：
+`Condition`是在`java 1.5`中才出现的，它用来替代传统的`Object`的`wait()`、`notify()`实现线程间的协作，相比使用`Object`的`wait()`、`notify()`，使用`Condition`中的`await()`、`signal()`这种方式实现线程间协作更加安全和高效。因此通常来说比较推荐使用`Condition`。
 
 ![Condition 与 Object 的监视器方法的对比](assets/e7e7bb0837bbe68a4364366d4ec9c5db-8103289.jpeg)
+
+
+我们总结下Condition和wait/notify的比较：
+
+- Condition可以精准的对多个不同条件进行控制，wait/notify只能和synchronized关键字一起使用，并且只能唤醒一个或者全部的等待队列；
+
+- Condition需要使用Lock进行控制，使用的时候要注意lock()后及时的unlock()，Condition有类似于await的机制，因此不会产生加锁方式而产生的死锁出现，同时底层实现的是park/unpark的机制，因此也不会产生先唤醒再挂起的死锁，一句话就是不会产生死锁，但是wait/notify会产生先唤醒再挂起的死锁。
+
+https://xie.infoq.cn/article/86c498a16a15566ab6aa422ef
 
 #### CopyOnWriteArrayList
 
@@ -977,3 +1022,7 @@ Thread 类的 sleep 和 yield 方法，将在当前正在执行的线程上运�
 3）**只能保证一个共享变量的原子操作**
 
 当对一个共享变量执行操作时，我们可以使用循环 CAS 的方式来保证原子操作，但是对多个共享变量操作时，循环 CAS 就无法保证操作的原子性，这个时候就可以用锁。
+
+<u>27、乐观锁与悲观锁使用场景？</u>
+
+乐观锁适合读多写少场景，悲观锁一般都是强一致性，写多读少的场景。
