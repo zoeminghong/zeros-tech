@@ -830,11 +830,37 @@ mvn spring-boot:run -Drun.profiles=foo,bar
 ```
 
 **打包名称**
+
 ```
 <build>
     <finalName>${warName}</finalName>
 </build>
 ```
+
+**resources**
+
+```
+<resources>
+    <resource>
+        <directory>src/main/java</directory>
+        <includes>
+            <include>**/*.xml</include>
+        </includes>
+        <filtering>false</filtering>
+    </resource>
+    <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+            <include>**/**</include>
+        </includes>
+        <filtering>false</filtering>
+    </resource>
+</resources>
+```
+
+includes：包含的文件类型，支持`*`或者`**`。
+
+filtering：是否将pom文件中的参数填充到相匹配的文件中。
 
 ### 场景分析
 
@@ -848,6 +874,31 @@ mvn spring-boot:run -Drun.profiles=foo,bar
 - project.artifactId
 - project.version
 - finalName 标签用来确定最终包名
+
+## Version
+
+Version 支持范围表示。
+
+```
+[1.0]:x == 1.0
+  1.0的版本
+[1.0,):x >= 1.0
+  大于等于1.0的版本
+(1.0,):x > 1.0
+  大于1.0的版本
+[1.0,2.0]
+	1.0~2.0的版本
+```
+
+示例
+
+```xml
+<dependency>  
+    <groupId>org.twitter4j</groupId>  
+    <artifactId>twitter4j-stream</artifactId>  
+    <version>[2.2,)</version>  
+</dependency>  
+```
 
 ### 工具
 
