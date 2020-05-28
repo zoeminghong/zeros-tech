@@ -27,7 +27,12 @@ Spring 容器负责实例化，配置和装配 Spring beans。
 - 方便的 MessageSource 访问（i18n）
 - ApplicationEvent 的发布
 
-与 BeanFactory 懒加载的方式不同，它是**预加载**，所以，每一个 bean 都在 ApplicationContext 启动之后实例化
+不同：
+
+1. 与 BeanFactory 懒加载的方式不同，它是**预加载**，所以，每一个 bean 都在 ApplicationContext 启动之后实例化。
+2. 相对于基本的BeanFactory，ApplicationContext 唯一的不足是占用内存空间。当应用程序配置Bean较多时，程序启动较慢。
+3. BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明的方式创建，如使用ContextLoader。
+4. BeanFactory和ApplicationContext都支持BeanPostProcessor、BeanFactoryPostProcessor的使用，但两者之间的区别是：BeanFactory需要手动注册，而ApplicationContext则是自动注册。
 
 ### BeanDefinition 与 BeanFactory  区别？
 
@@ -91,6 +96,46 @@ Spring 框架提供了以下四种方式来管理 bean 的生命周期事件:
 8. Bean 可以使用了
 9. 当容器关闭时, 调用 Bean 的销毁方法(destroy-method)
 
+**详细说明**
+
+（1）实例化Bean：
+
+对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
+
+（2）设置对象属性（依赖注入）：
+
+实例化后的对象被封装在BeanWrapper对象中，紧接着，Spring根据BeanDefinition中的信息 以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。
+
+（3）处理Aware接口：
+
+接着，Spring会检测该对象是否实现了xxxAware接口，并将相关的xxxAware实例注入给Bean：
+
+①如果这个Bean已经实现了BeanNameAware接口，会调用它实现的setBeanName(String beanId)方法，此处传递的就是Spring配置文件中Bean的id值；
+
+②如果这个Bean已经实现了BeanFactoryAware接口，会调用它实现的setBeanFactory()方法，传递的是Spring工厂自身。
+
+③如果这个Bean已经实现了ApplicationContextAware接口，会调用setApplicationContext(ApplicationContext)方法，传入Spring上下文；
+
+（4）BeanPostProcessor：
+
+如果想对Bean进行一些自定义的处理，那么可以让Bean实现了BeanPostProcessor接口，那将会调用postProcessBeforeInitialization(Object obj, String s)方法。由于这个方法是在Bean初始化结束时调用的，所以可以被应用于内存或缓存技术；
+
+（5）InitializingBean 与 init-method：
+
+如果Bean在Spring配置文件中配置了 init-method 属性，则会自动调用其配置的初始化方法。
+
+（6）如果这个Bean实现了BeanPostProcessor接口，将会调用postProcessAfterInitialization(Object obj, String s)方法；
+
+以上几个步骤完成后，Bean就已经被正确创建了，之后就可以使用这个Bean了。
+
+（7）DisposableBean：
+
+当Bean不再需要时，会经过清理阶段，如果Bean实现了DisposableBean这个接口，会调用其实现的destroy()方法；
+
+（8）destroy-method：
+
+最后，如果这个Bean的Spring配置中配置了destroy-method属性，会自动调用其配置的销毁方法。
+
 ### 三种初始化方式？
 
 InitializingBean、@PostConstruct（推荐）、init-method三种。
@@ -152,7 +197,13 @@ DisposableBean、@PreDestroy、destroy-method
 2. byName:该选项可以根据 bean 名称设置依赖关系。当向一个 bean 中自动装配一个属性时，容 器将根据 bean 的名称自动在在配置文件中查询一个匹配的 bean。如果找到的话，就装配这个属 性，如果没找到的话就报错。
 3. byType:该选项可以根据 bean 类型设置依赖关系。当向一个 bean 中自动装配一个属性时，容器 将根据 bean 的类型自动在在配置文件中查询一个匹配的 bean。如果找到的话，就装配这个属性， 如果没找到的话就报错。
 4. constructor:造器的自动装配和 byType 模式类似，但是仅仅适用于与有构造器相同参数的 bean，如果在容器中没有找到与构造器参数类型一致的 bean，那么将会抛出异常。
-5. autodetect:该模式自动探测使用构造器自动装配或者 byType 自动装配。首先，首先会尝试找合 适的带参数的构造器，如果找到的话就是用构造器自动装配，如果在 bean 内部没有找到相应的构 造器或者是无参构造器，容器就会自动选择 byTpe 的自动装配方式。
+5. autodetect:该模式自动探测使用构造器自动装配或者 byType 自动装配。首先，**首先会尝试找合适的带参数的构造器**，如果找到的话就是用构造器自动装配，如果在 bean 内部没有找到相应的构 造器或者是无参构造器，**容器就会自动选择 byTpe 的自动装配方式**。
+
+### @Autowired和@Resource之间的区别
+
+(1) @Autowired默认是**按照类型装配**注入的，默认情况下它要求依赖对象必须存在（可以设置它required属性为false）。
+
+(2) @Resource默认是**按照名称**来装配注入的，只有当找不到与名称匹配的bean才会**按照类型**来装配注入。
 
 ### 请举例解释**@Required** 注解?
 
@@ -160,13 +211,33 @@ DisposableBean、@PreDestroy、destroy-method
 
 ### 简述 **AOP** 和 **IOC** 概念
 
- **AOP:**Aspect Oriented Program, 面向(方面)切面的编程;Filter(过滤器) 也是一种 AOP. AOP 是一种 新的方法论, 是对传统 OOP(Object-Oriented Programming, 面向对象编程) 的补充. AOP 的 主要编程对象是切面(aspect), 而切面模块化横切关注点.可以举例通过事务说明.
+AOP，一般称为面向切面，作为面向对象的一种补充，用于将那些与业务无关，但却对多个对象产生影响的公共行为和逻辑，抽取并封装为一个可重用的模块，这个模块被命名为“切面”（Aspect），减少系统中的重复代码，降低了模块间的耦合度，同时提高了系统的可维护性。**可用于权限认证、日志、事务处理。**
 
-IOC: Invert Of Control, 控制反转. 也成为 DI(依赖注入)其思想是反转资源获取的方向. 传统的资源查找方式要求组件向容器发起请求查找资源.作为回应, 容器适时的返回资源. **而应用了 IOC 之后, 则是容器主动地将资源推送给它所管理的组件**,组件所要做的仅是选择一种合适的方式 来接受资源. 这种行 为也被称为查找的被动形式
+AOP实现的关键在于 代理模式，AOP代理主要分为静态代理和动态代理。静态代理的代表为AspectJ；动态代理则以Spring AOP为代表。
 
-IoC（Inverse of Control:控制反转）是一种**设计思想**，就是**将原本在程序中手动创建对象的控制权，交由Spring框架来管理。**
+（1）AspectJ是静态代理的增强，所谓静态代理，就是AOP框架会在编译阶段生成AOP代理类，因此也称为**编译时增强**，他会在编译阶段将AspectJ(切面)织入到Java字节码中，运行的时候就是增强之后的AOP对象。
 
-IoC 容器实际上就是个Map（key，value）,Map 中存放的是各种对象。 **IOC 容器就像是一个工厂一样，当我们需要创建一个对象的时候，只需要配置好配置文件/注解即可，完全不用考虑对象是如何被创建出来的。**
+（2）Spring AOP使用的动态代理，所谓的动态代理就是说AOP框架不会去修改字节码，而是每次运行时在内存中临时为方法生成一个AOP对象，这个AOP对象包含了目标对象的全部方法，并且在特定的切点做了增强处理，并回调原对象的方法。
+
+Spring AOP中的动态代理主要有两种方式**，JDK动态代理和CGLIB动态代理：**
+
+①JDK动态代理只提供接口的代理，不支持类的代理。**核心InvocationHandler接口和Proxy类**，InvocationHandler 通过invoke()方法反射来调用目标类中的代码，动态地将横切逻辑和业务编织在一起；接着，Proxy利用 InvocationHandler动态创建一个符合某一接口的的实例, 生成目标类的代理对象。
+
+②如果代理类**没有实现 InvocationHandler 接口**，那么Spring AOP会**选择使用CGLIB**来动态代理目标类。CGLIB（Code Generation Library），是一个代码生成的类库，可以在运行时动态的生成指定类的一个子类对象，并覆盖其中特定方法并添加增强代码，从而实现AOP。CGLIB是通过继承的方式做的动态代理，因此如果某个类被标记为final，那么它是无法使用CGLIB做动态代理的。
+
+（3）**静态代理与动态代理区别在于生成AOP代理对象的时机不同，相对来说AspectJ的静态代理方式具有更好的性能，但是AspectJ需要特定的编译器进行处理，而Spring AOP则无需特定的编译器处理。**
+
+InvocationHandler 的 invoke(Object proxy,Method method,Object[] args)：proxy是最终生成的代理实例; method 是被代理目标实例的某个具体方法; args 是被代理目标实例某个方法的具体入参, 在方法反射调用时使用。
+
+
+
+（1）IOC就是控制反转，是**指创建对象的控制权的转移**，以前创建对象的主动权和时机是由自己把控的，而现在这种权力转移到Spring容器中，并由容器根据配置文件去创建实例和管理各个实例之间的依赖关系，对象与对象之间松散耦合，也利于功能的复用。**DI依赖注入，和控制反转是同一个概念的不同角度的描述，即 应用程序在运行时依赖IoC容器来动态注入对象需要的外部资源。**
+
+（2）最直观的表达就是，IOC让对象的创建不用去new了，可以由spring自动生产，使用java的反射机制，根据配置文件在运行时动态的去创建对象以及管理对象，并调用对象的方法的。
+
+（3）Spring的IOC有三种注入方式 ：**构造器注入、setter方法注入、注解注入。**
+
+**IoC让相互协作的组件保持松散的耦合，而AOP编程允许你把遍布于应用各层的功能分离出来形成可重用的功能组件。**
 
 ### @Import注解的三种使用方式
 
