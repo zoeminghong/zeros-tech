@@ -900,6 +900,14 @@ Version 支持范围表示。
 </dependency>  
 ```
 
+## 问与答
+
+### Optinal=true 与 scope=provide 的区别
+
+Optinal=true：阻隔依赖的继承性，子项目可以引用该依赖也可以不引用。
+
+scope=provide：对象是依赖整体，依赖将提供编译而不参与打包，以使用方提供的为准，从而避免版本冲突。子项目必须引用该依赖，但可以版本不一样。
+
 ### 工具
 
 [Maven Helper](https://github.com/harishkannarao/MavenSurefireFailsafeExamples) : 帮助解决包冲突问题。
