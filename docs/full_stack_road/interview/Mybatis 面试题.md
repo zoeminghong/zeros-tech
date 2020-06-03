@@ -12,6 +12,8 @@
 
  答:MyBatis 的缓存分为一级缓存和二级缓存，一级缓存放在 session 里面,默认就有，二级缓存放在它的命名空间里,默认是不打开的,使用二级缓存属性类需要实现 Serializable 序列化接口(可用来保存对象的状态)，可在它的映射文件中配置`<cache/>`
 
+[https://www.cnblogs.com/cxuanBlog/p/11333021.html#%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98%E5%BC%80%E5%90%AF%E6%9D%A1%E4%BB%B6](https://www.cnblogs.com/cxuanBlog/p/11333021.html#二级缓存开启条件)
+
 ### Mybatis 是如何进行分页的?分页插件的原理是什么?
 
 1)、Mybatis 使用 **RowBounds** 对象进行分页，也可以直接编写 sql 实现分页，也可以使用 Mybatis 的分页插件。
@@ -32,7 +34,7 @@
 
 1. `#{}` 是预编译处理，`${}` 是字符串替换。
 2. Mybatis 在处理 `#{}` 时，会将 sql 中的`#{}`替换为 ? 号，调用 PreparedStatement 的 set 方法来赋值;
-3. Mybatis 在处理 `${}` 时，就是把 `${}` 替换成变量的值。 
+3. Mybatis 在处理 `${}` 时，就是把 `${}` 替换成变量的值。  `#{}` 会有数据类型的处理，比如字符串会加引号处理，当替换表名这类场景时，就会存在问题，需要使用 `${}` 
 4. 使用 `#{}` 可以有效的防止 SQL 注入，提高系统安全性。
 
 ### 为什么说 Mybatis 是半自动 ORM 映射工具? 它与全自动的区别在哪里?
@@ -138,3 +140,21 @@ Any one of `STATEMENT`, `PREPARED` or `CALLABLE`. This causes MyBatis to use `St
 ### Xml 配置方式、Yaml配置方式、Java 配置方式哪种优先级比较高？
 
 Java > Yaml > Xml
+
+### Executor 实现中使用了什么设计模式？
+
+装饰器模式，先通过BaseExecutor实现核心功能，再由Reuse、Simple、BatchExecutor实现各自能力。
+
+### Mybatis 工作原理？
+
+1. 读取核心配置文件并返回`InputStream`流对象。
+2. 根据`InputStream`流对象解析出`Configuration`对象，然后创建`SqlSessionFactory`工厂对象
+3. 根据一系列属性从`SqlSessionFactory`工厂中创建`SqlSession`
+4. 从`SqlSession`中调用`Executor`执行数据库操作&&生成具体SQL指令
+5. 对执行结果进行二次封装
+6. 提交与事务
+
+## 拓展
+
+[Mybatis 源码解析入门](https://mp.weixin.qq.com/s?__biz=MzI4Njc5NjM1NQ==&mid=2247487890&idx=1&sn=746afc1c204f23899ce47df0c9391504&chksm=ebd62ebedca1a7a85352fbcccd6d069db0a7b165e7b644b1e4e22a4e9fd685ba1a5a73c88e36&scene=21#wechat_redirect)
+

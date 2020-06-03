@@ -27,3 +27,27 @@ public class DataPermissionProperties {
 }
 ```
 
+### @EnableCaching @Cacheable
+
+Spring 的缓存技术还具备相当的灵活性，不仅能够使用 SpEL（Spring Expression Language）来定义缓存的 key 和各种 condition，还提供开箱即用的缓存临时存储方案，也支持和主流的专业缓存例如 EHCache 集成。
+
+```java
+
+public class Book {
+	/**
+	 * value : 缓存的名字  ,key ： 缓存map中的key
+	 * @param id
+	 * @return
+	 */
+    @Cacheable(value = { "sampleCache" },key="#id")
+    public String getBook(int id) {
+        System.out.println("Method executed..");
+        if (id == 1) {
+            return "Book 1";
+        } else {
+            return "Book 2";
+        }
+    }
+}
+```
+

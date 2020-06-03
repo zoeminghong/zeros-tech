@@ -182,4 +182,10 @@ Mac 万能视频播放器
 
 Kubernetes中文指南
 
-[Github地址](https://github.com/rootsongjc/kubernetes-handbook)
+- [Github地址](https://github.com/rootsongjc/kubernetes-handbook)
+
+## RSShub
+
+RSS 开发定制器
+
+- [Github地址](https://github.com/DIYgod/RSSHub)

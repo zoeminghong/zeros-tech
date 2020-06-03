@@ -319,6 +319,20 @@ ThreadPoolExecutor 提供了动态调整线程池容量大小的方法：
 
 当上述参数从小变大时，ThreadPoolExecutor 进行线程赋值，还可能立即创建新的线程来执行任务。
 
+### runWorker执行过程
+
+![image-20200529152654541](assets/image-20200529152654541.png)
+
+### Worker为什么不使用ReentrantLock来实现呢？
+
+tryAcquire方法它是不允许重入的，而ReentrantLock是允许重入的。对于线程来说，如果线程正在执行是不允许其它锁重入进来的。
+
+线程只需要两个状态，一个是独占锁，表明正在执行任务；一个是不加锁，表明是空闲状态。
+
+### 在runWorker方法中，为什么要在执行任务的时候对每个工作线程都加锁呢？
+
+shutdown方法与getTask方法存在竞态条件.(这里不做深入，建议自己深入研究，对它比较熟悉的面试官一般会问)
+
 #### 什么是 Callable、Future、FutureTask ？
 
 1）**Callable**
@@ -748,7 +762,7 @@ ReadWriteLock 对程序性能的提高主要受制于如下几个因素：
 
 #### Condition
 
-`Condition`是在`java 1.5`中才出现的，它用来替代传统的`Object`的`wait()`、`notify()`实现线程间的协作，相比使用`Object`的`wait()`、`notify()`，使用`Condition`中的`await()`、`signal()`这种方式实现线程间协作更加安全和高效。因此通常来说比较推荐使用`Condition`。
+`Condition`是在`java 1.5`中才出现的，它用来替代传统的`Object`的`wait()`、`notify()`实现线程间的协作，相比使用`Object`的`wait()`、`notify()`，使用`Condition`中的`await()`、`signal()`这种方式实现线程间协作**更加安全和高效**。因此通常来说比较推荐使用`Condition`。
 
 ![Condition 与 Object 的监视器方法的对比](assets/e7e7bb0837bbe68a4364366d4ec9c5db-8103289.jpeg)
 
@@ -757,7 +771,7 @@ ReadWriteLock 对程序性能的提高主要受制于如下几个因素：
 
 - Condition可以精准的对多个不同条件进行控制，wait/notify只能和synchronized关键字一起使用，并且只能唤醒一个或者全部的等待队列；
 
-- Condition需要使用Lock进行控制，使用的时候要注意lock()后及时的unlock()，Condition有类似于await的机制，因此不会产生加锁方式而产生的死锁出现，同时底层实现的是park/unpark的机制，因此也不会产生先唤醒再挂起的死锁，一句话就是不会产生死锁，但是wait/notify会产生先唤醒再挂起的死锁。
+- Condition需要使用Lock进行控制，使用的时候要注意lock()后及时的unlock()，Condition有类似于await的机制，因此不会产生加锁方式而产生的死锁出现，同时底层实现的是park/unpark的机制，因此也不会产生先唤醒再挂起的死锁，一句话就是**不会产生死锁**，但是wait/notify会产生先唤醒再挂起的死锁。
 
 https://xie.infoq.cn/article/86c498a16a15566ab6aa422ef
 
@@ -1030,4 +1044,22 @@ Thread 类的 sleep 和 yield 方法，将在当前正在执行的线程上运�
 <u>28、AQS为什么使用双端队列？</u>
 
 假如你的队列是单向的如：Head -> N1 -> N2 -> Tail。出队的时候你要获取N1很简单，Head.next就行了，入队你就麻烦了，你要遍历整个链表到N2，然后N2.next = N3;N3.next = Tail。入队的复杂度就是O(n),而且Tail也失去他的意义。**相反双向链表出队和入队都是O(1)时间复杂度。说白了空间换时间。**
+
+<u>29、Condition 的特性？</u>
+
+- 支持根据条件精准唤醒
+- 相比 wait、Notify 来说更加高效和安全
+- 不会导致死锁（底层实现的是park/unpark的机制）
+
+<u>30、park/unpark 是什么？</u>
+
+park/unpark 是UnSafe类中的本地方法。park 是当前线程挂起，unpark 释放被park创建的在一个线程上的阻塞
+
+<u>31、Unsafe 作用？</u>
+
+![image-20200529152052397](assets/image-20200529152052397.png)
+
+<u>32、Unsafe 创建</u>
+
+Unsafe 类为 final 类同时不支持new方式，通过 `Unsafe.getUnsafe` 初始化。
 

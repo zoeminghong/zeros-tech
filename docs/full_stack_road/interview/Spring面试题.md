@@ -323,3 +323,4 @@ FactoryBean是一个接口，当在IOC容器中的Bean实现了FactoryBean后，
 （2）基于 TransactionProxyFactoryBean的声明式事务管理
 （3）基于 @Transactional 的声明式事务管理
 （4）基于Aspectj AOP配置事务
+

@@ -104,7 +104,7 @@ private void testInheritableThreadLocal() {
 I/MainActivity( 5046): testInheritableThreadLocal =droidyue.com
 ```
 
-使用 InheritableThreadLocal 可以将某个线程的 ThreadLocal 值在其子线程创建时传递过去。因为在线程创建过程中，有相关的处理逻辑。子线程中会复制主线程中的ThreadLocal实例数据，从而实现父线程数据传递到子线程。
+使用 InheritableThreadLocal 可以将某个线程的 ThreadLocal 值在其子线程创建时传递过去。因为在线程创建过程中，有相关的处理逻辑。**子线程中会复制主线程中的ThreadLocal实例数据，从而实现父线程数据传递到子线程。**
 
 ### 内存泄漏问题
 
@@ -154,7 +154,7 @@ ThreadLocalMap设计时的对上面问题的对策：
 ThreadLocalMap的getEntry函数的流程大概为：
 
 首先从ThreadLocal的直接索引位置(通过ThreadLocal.threadLocalHashCode & (table.length-1)运算得到)获取Entry e，如果e不为null并且key相同则返回e；
-如果e为null或者key不一致则向下一个位置查询，如果下一个位置的key和当前需要查询的key相等，则返回对应的Entry。否则，如果key值为null，则擦除该位置的Entry，并继续向下一个位置查询。在这个过程中遇到的key为null的Entry都会被擦除，那么Entry内的value也就没有强引用链，自然会被回收。仔细研究代码可以发现，set操作也有类似的思想，将key为null的这些Entry都删除，防止内存泄露。
+如果e为null或者key不一致则向下一个位置查询，如果下一个位置的key和当前需要查询的key相等，则返回对应的Entry。**否则，如果key值为null，则擦除该位置的Entry，并继续向下一个位置查询。在这个过程中遇到的key为null的Entry都会被擦除**，那么Entry内的value也就没有强引用链，自然会被回收。仔细研究代码可以发现，set操作也有类似的思想，将key为null的这些Entry都删除，防止内存泄露。
 　　但是光这样还是不够的，上面的设计思路依赖一个前提条件：要调用ThreadLocalMap的getEntry函数或者set函数。这当然是不可能任何情况都成立的，**所以很多情况下需要使用者手动调用ThreadLocal的remove函数**，手动删除不再需要的ThreadLocal，防止内存泄露。所以JDK建议将ThreadLocal变量定义成**private static**的，这样的话ThreadLocal的生命周期就更长，由于一直存在ThreadLocal的强引用，所以ThreadLocal也就不会被回收，也就能保证任何时候都能根据ThreadLocal的弱引用访问到Entry的value值，然后remove它，防止内存泄露。
 
 <u>为什么要不断往后找key为null的情况呢，首先这个threadLocalHashCode是有规律，不断往后累加的，如果在前面的entity中存在为空的情况，也就意味着后面值也有可能存在为null的情况。</u>
@@ -176,7 +176,7 @@ private static int nextHashCode() {
 }
 ```
 
-对于每一个ThreadLocal对象，都有一个final修饰的int型的threadLocalHashCode不可变属性，对于基本数据类型，可以认为它在初始化后就不可以进行修改，所以可以唯一确定一个ThreadLocal对象。
+对于每一个ThreadLocal对象，都有一个final修饰的int型的threadLocalHashCode不可变属性，对于基本数据类型，可以认为它在初始化后就不可以进行修改，所以可以唯一确定一个ThreadLocal对象。**ThreadLocal 在被创建的时候，就会初始化一个 threadLocalHashCode，从头开始计数，从而如果被垃圾回收的位置，就可以被再次使用了。**
 　　但是如何保证两个同时实例化的ThreadLocal对象有不同的threadLocalHashCode属性：在ThreadLocal类中，还包含了一个static修饰的AtomicInteger（提供原子操作的Integer类）成员变量（即类变量）和一个static final修饰的常量（作为两个相邻nextHashCode的差值）。由于nextHashCode是类变量，所以每一次调用ThreadLocal类都可以保证nextHashCode被更新到新的值，并且下一次调用ThreadLocal类这个被更新的值仍然可用，同时AtomicInteger保证了nextHashCode自增的原子性。
 
 **8、为什么不直接用线程id来作为ThreadLocalMap的key？**
@@ -186,3 +186,13 @@ private static int nextHashCode() {
 **9、ThreadLocal 解决冲突的方法是什么？**
 
 通过再Hash方式，不断往后加1。
+
+**10、为什么要使用弱引用？**
+
+**假如每个key都强引用指向threadlocal，也就是上图虚线那里是个强引用，那么这个threadlocal就会因为和entry存在强引用无法被回收！造成内存泄漏** ，除非线程结束，线程被回收了，map也跟着回收。
+
+**11、魔数0x61c88647**
+
+生成hash code间隙为这个魔数，可以让生成出来的值或者说ThreadLocal的ID较为均匀地分布在2的幂大小的数组中。
+
+这个魔数的选取与斐波那契散列有关，0x61c88647对应的十进制为1640531527。
