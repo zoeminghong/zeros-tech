@@ -299,3 +299,11 @@ https://github.com/tsdexter/iCloud-NoSync
 - Open Finder and find a folder you don't want to sync to iCloud
 - Right-click the folder
 - Choose `iCloud-NoSync` from the bottom of the context menu
+
+### 加密文件
+
+```shell
+# data-permission1.zip 为压缩后的名字，data-permission.zip为需要被压缩的文件
+zip -e ./data-permission1.zip data-permission.zip
+```
+

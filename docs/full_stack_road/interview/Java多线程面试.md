@@ -1063,3 +1063,6 @@ park/unpark 是UnSafe类中的本地方法。park 是当前线程挂起，unpark
 
 Unsafe 类为 final 类同时不支持new方式，通过 `Unsafe.getUnsafe` 初始化。
 
+<u>33、重入锁有什么意义</u>
+
+避免了频繁的持有释放操作，这样既提升了效率，又避免了死锁。

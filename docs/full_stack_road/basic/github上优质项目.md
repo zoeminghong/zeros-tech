@@ -189,3 +189,9 @@ Kubernetes中文指南
 RSS 开发定制器
 
 - [Github地址](https://github.com/DIYgod/RSSHub)
+
+## Outline 
+
+Outline 是一个团队用的wiki和知识库。开源、可以自己架设，很适合对数据安全要求高的公司
+
+https://github.com/outline/outline
