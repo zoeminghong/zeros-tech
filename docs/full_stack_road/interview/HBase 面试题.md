@@ -94,7 +94,7 @@ Rowkey 是一个二进制码流，一般是10~100个字节，建议越短越好�
 
 1. ZooKeeper 会监控 HRegionServer 的上下线情况，当 ZK 发现某个 HRegionServer 宕机之后会通知 HMaster 进行失效备援；
 
-2.HRegionServer 会停止对外提供服务，就是它所负责的 region 暂时停止对外提供服务；
+2. HRegionServer 会停止对外提供服务，就是它所负责的 region 暂时停止对外提供服务；
 
 3. HMaster 会将该 HRegionServer 所负责的 region 转移到其他 HRegionServer 上，并且会对 HRegionServer 上存在 memstore 中还未持久化到磁盘中的数据进行恢复；
 

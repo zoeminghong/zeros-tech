@@ -106,7 +106,7 @@ new Vue({
 
 回调的一个钩子
 
-```vue
+```js
 // Vue
 Vue.component('welcome-button', {
   template: `
@@ -162,7 +162,7 @@ var vm = new Vue({
 
 - 对于异常处理使用 catch
 
-```
+```js
 async function hello() {
   return greeting = await Promise.resolve("Hello");
 };
@@ -175,3 +175,7 @@ hello().then(alert);
 ## 冒号
 
 加冒号的，说明后面的是一个变量或者表达式，没加冒号的后面就是对应的字符串字面量
+
+## solt
+
+https://juejin.im/post/5a69ece0f265da3e5a5777ed
