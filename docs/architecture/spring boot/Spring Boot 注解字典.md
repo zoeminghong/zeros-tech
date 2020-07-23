@@ -51,3 +51,11 @@ public class Book {
 }
 ```
 
+### @ConditionalOnClass
+
+当存在这个 Class 才启用。尽量使用name，不要使用 class 引用方式，如果项目不存在指定的类时，会导致项目无法启动。
+
+```
+@ConditionalOnClass(name = "com.aliyun.odps.jdbc.OdpsDriver")
+```
+

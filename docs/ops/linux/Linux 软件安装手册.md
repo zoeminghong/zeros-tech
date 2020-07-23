@@ -58,6 +58,9 @@ command -v nvm
 nvm ls-remote
 
 nvm install v12.16.1
+
+# 遇到N/A问题，更新nvm到最新版
+https://github.com/nvm-sh/nvm
 ```
 
 ### gcc 升级
@@ -183,4 +186,37 @@ sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_
 **创建表**
 
 使用 utf-8和 utf8_general_ci 编码格式
+
+### 安装 Jenkins
+
+```shell
+yum install git
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+yum install jenkins
+
+# 配置
+vim /etc/sysconfig/jenkins
+## 内容
+JENKINS_PORT="8080"
+JENKINS_USER="root"
+
+# 修改目录权限
+chown -R root:root /var/lib/jenkins
+chown -R root:root /var/cache/jenkins
+chown -R root:root /var/log/jenkins
+
+# 启动重启
+service jenkins restart
+ps -ef | grep jenkins
+systemctl start jenkins
+
+# 访问
+访问jenkins地址 http:<ip或者域名>:8080
+
+# 执行命令查看密码
+cat /var/lib/jenkins/secrets/initialAdminPassword
+```
 

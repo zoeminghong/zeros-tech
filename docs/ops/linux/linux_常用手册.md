@@ -47,3 +47,10 @@ zgrep -a 'pattern condition 1'  fileName.tar.gz
 ntpdate cn.pool.ntp.org
 ```
 
+后台执行
+
+```shell
+# nohup 和 & 是必填的
+nohup ping www.ibm.com &
+```
+

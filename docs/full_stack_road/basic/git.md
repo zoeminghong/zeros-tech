@@ -1362,6 +1362,12 @@ error: failed to push some refs to 'git@gitlab.trc.com:psd/dew-trc.git'
 
 原因：远程仓库是新建的，不存在分支，第一次提交的时候需要创建分支，同时，用户账号没有创建分支权限，导致无法提交。
 
+- git pull 时，拉取数据失败，The remote end hung up unexpectedly
+
+```shell
+git config --global http.postBuffer 524288000
+```
+
 ## Tips
 
 - 分支下不存在`track`的内容，则该分支会被`Git`无视，无法通过 `git branch` 查到

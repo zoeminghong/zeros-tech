@@ -772,6 +772,18 @@ InnoDB行锁是通过给索引上的索引项加锁来实现的，**只有通过
 
 https://zhuanlan.zhihu.com/p/55947158
 
+### emoji 标签问题怎么解决？
+
+编码格式从 utf-8 改为 **utf8mb4**
+
+mysql中规定utf8字符的最大字节数是3，但是某些unicode字符转成utf8编码之后有4个字节，导致出错。
+
+### 区分大小写问题？
+
+utf8_general_ci 以 ci 结尾的值是不区分大小写的，当`b` 作为查询条件的时候，`B` 的结果也会被查询出来。
+
+utf8_bin 或者 **utf8mb4_bin**结尾的会区分大小写。
+
 拓展：
 
 [MYSQL面试题](https://mp.weixin.qq.com/s?src=11&timestamp=1590456354&ver=2361&signature=fhGUV0Beb0zF*9VZKi5-XenmJfeD*Fs*fxY6B0DK49QbvGqgq1N7C-YwQYJpkai*z5fLbzeI55DKkNgI-igs8LGviTHnBsT46NZlyagzC-K2o8tJIxTZ6Dqy257gOI0Q&new=1)

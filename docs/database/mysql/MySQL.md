@@ -19,3 +19,31 @@ vim /etc/my.cnf
 port=3308
 ```
 
+#### 保存表情报错
+
+mysql中规定utf8字符的最大字节数是3，但是某些unicode字符转成utf8编码之后有4个字节，导致出错。
+
+```bash
+1.建表的时候添加如下限制：ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+2.在my.cnf上修改如下：
+------------------my.cnf------------------------------------------------------
+# For advice on how to change settings please see
+# http://dev.mysql.com/doc/refman/5.6/en/server-configuration-defaults.html
+[client]
+default-character-set=utf8mb4
+[mysql]
+default-character-set = utf8mb4
+ 
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+log-error=/var/log/mysqld.log
+long_query_time=3
+ 
+[mysqld]
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+init_connect='SET NAMES utf8mb4'
+ 
+#log-slow-queries= /usr/local/mysql/log/slowquery.log
+```
+
