@@ -21,31 +21,31 @@ Kubernetes 就是操作系统!
 
 ![image-20190909220505466](assets/image-20190909220505466.png)
 
-控制节点，即 Master 节点，由三个紧密协作的独立组件组合而成，它们分别是负责 API 服 务的 kube-apiserver、负责调度的 kube-scheduler，以及负责容器编排的 kube-controller- manager。整个集群的持久化数据，则由 kube-apiserver 处理后保存在 Ectd 中。 
+控制节点，即 Master 节点，由三个紧密协作的独立组件组合而成，它们分别是负责 API 服 务的 kube-apiserver、负责调度的 kube-scheduler，以及负责容器编排的 kube-controller-manager。整个集群的持久化数据，则由 kube-apiserver 处理后保存在 Ectd 中。 
 
 而计算节点上最核心的部分，则是一个叫作 kubelet 的组件。 
 
-在 Kubernetes 项目中，kubelet 主要负责同容器运行时(比如 Docker 项目)打交道。而这个交 互所依赖的，是一个称作 CRI(Container Runtime Interface)的远程调用接口，这个接口定义了 容器运行时的各项核心操作，比如:启动一个容器需要的所有参数。 
+在 Kubernetes 项目中，kubelet 主要负责同容器运行时(比如 Docker 项目)打交道。而这个交互所依赖的是一个称作 CRI(Container Runtime Interface) 的远程调用接口，这个接口定义了容器运行时的各项核心操作，比如:启动一个容器需要的所有参数。 
 
-这也是为何，Kubernetes 项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你 的这个容器运行时能够运行标准的容器镜像，它就可以通过实现 CRI 接入到 Kubernetes 项目当 中。 
+这也是为何，Kubernetes 项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你 的这个容器运行时能够运行标准的容器镜像，它就可以通过实现 CRI 接入到 Kubernetes 项目当中。 
 
 而具体的容器运行时，比如 Docker 项目，则一般通过 OCI 这个容器运行时规范同底层的 Linux 操 作系统进行交互，即:把 CRI 请求翻译成对 Linux 操作系统的调用(操作 Linux Namespace 和 Cgroups 等)。 
 
-此外，kubelet 还通过 gRPC 协议同一个叫作 Device Plugin 的插件进行交互。这个插件，是 Kubernetes 项目用来管理 GPU 等宿主机物理设备的主要组件，也是基于 Kubernetes 项目进行机 器学习训练、高性能作业支持等工作必须关注的功能。 
+此外，kubelet 还通过 gRPC 协议同一个叫作 Device Plugin 的插件进行交互。这个插件是 Kubernetes 项目用来管理 GPU 等宿主机物理设备的主要组件，也是基于 Kubernetes 项目进行机器学习训练、高性能作业支持等工作必须关注的功能。 
 
-而kubelet 的另一个重要功能，则是调用网络插件和存储插件为容器配置网络和持久化存储。这两个插件与 kubelet 进行交互的接口，分别是 CNI(Container Networking Interface)和 CSI(Container Storage Interface)。
+而 kubelet 的另一个重要功能，则是调用网络插件和存储插件为容器配置网络和持久化存储。这两个插件与 kubelet 进行交互的接口，分别是 CNI(Container Networking Interface)和 CSI(Container Storage Interface)。
 
-### Pod
+### Pod（类服务器）
 
-在 Kubernetes 项目中，这些容器则会被划分为一个“Pod”，Pod 里的容器共享同一个 Network Namespace、同一组数据卷，从而达到高效率交换信息的目的。Pod，是 Kubernetes 项目的原子调度单位。
+在 Kubernetes 项目中，这些容器则会被划分为一个“Pod”，**Pod 里的容器共享同一个 Network Namespace、同一组数据卷，从而达到高效率交换信息的目的**。Pod，是 Kubernetes 项目的原子调度单位。
 
-Pod 就是 Kubernetes 世界里的“应用”;而一个应用，可以由多个容器组成。
+Pod 就是 Kubernetes 世界里的“应用”。而一个应用，**可以由多个容器组成。**
 
 为了解决一些应用需要部署到同一台机子上的需求。容器之间有时存在一些亲密关系，要求部署在同一台服务器中，比如：互相之间会发生直接的文件交换、使用 localhost 或者 Socket 文件进行本地通信、会发生非常频繁的远程调用、需要共享某些 Linux Namespace。
 
 首先，关于 Pod 最重要的一个事实是:它只是一个逻辑概念。 
 
-也就是说，Kubernetes 真正处理的，还是宿主机操作系统上 Linux 容器的 Namespace 和 Cgroups，而并不存在一个所谓的 Pod 的边界或者隔离环境。 
+也就是说，Kubernetes 真正处理的还是宿主机操作系统上 Linux 容器的 Namespace 和 Cgroups，而并不存在一个所谓的 Pod 的边界或者隔离环境。 
 
 在 Kubernetes 项目里，Pod 的实现需要使用一个中间容器，这个容器叫作 Infra 容器。在这个 Pod 中，Infra 容器永远都是第一个被创建的容器，而其他用户定义的容器，则通过 Join Network Namespace 的方式，与 Infra 容器关联在一起。这样的组织关系，可以用下面这样一个示意图来表达:
 
@@ -87,7 +87,7 @@ spec:
     args: ["-c", "echo Hello from the debian container > /pod-data/index.html"]
 ```
 
-Pod 这种“超亲密关系”容器的设计思想，实际上就是希望，当用户想在一个容器里跑多个功能并 不相关的应用时，应该优先考虑它们是不是更应该被描述成一个 Pod 里的多个容器。 
+Pod 这种“超亲密关系”容器的设计思想，实际上就是希望，当用户想在一个容器里跑多个功能并不相关的应用时，应该优先考虑它们是不是更应该被描述成一个 Pod 里的多个容器。 
 
 第一个最典型的例子是:WAR 包与 Web 服务器。 
 
@@ -95,7 +95,7 @@ Pod 这种“超亲密关系”容器的设计思想，实际上就是希望，�
 
 假如，你现在只能用 Docker 来做这件事情，那该如何处理这个组合关系呢? 
 
-一种方法是，把 WAR 包直接放在 Tomcat 镜像的 webapps 目录下，做成一个新的镜像运行起 来。可是，这时候，如果你要更新 WAR 包的内容，或者要升级 Tomcat 镜像，就要重新制作一 个新的发布镜像，非常麻烦。
+一种方法是，把 WAR 包直接放在 Tomcat 镜像的 webapps 目录下，做成一个新的镜像运行起来。可是，这时候，如果你要更新 WAR 包的内容，或者要升级 Tomcat 镜像，就要重新制作一个新的发布镜像，非常麻烦。
  另一种方法是，你压根儿不管 WAR 包，永远只发布一个 Tomcat 容器。不过，这个容器的 webapps 目录，就必须声明一个 hostPath 类型的 Volume，从而把宿主机上的 WAR 包挂载进 Tomcat 容器当中运行起来。不过，这样你就必须要解决一个问题，即:如何让每一台宿主机， 都预先准备好这个存储有 WAR 包的目录呢?这样来看，你只能独立维护一套分布式存储系统 了。 
 
 ```yaml
@@ -182,7 +182,7 @@ spec:
 
 在 Kubernetes 项目中，如果要设置 hosts 文件里的内容，一定要通过这种方法。否则，如果直接修改了 hosts 文件的话，在 Pod 被删除重建之后，kubelet 会自动覆盖掉被修改的内容。
 
-除了上述跟“机器”相关的配置外，你可能也会发现，凡是跟容器的 Linux Namespace 相关的属 性，也一定是 Pod 级别的。这个原因也很容易理解:Pod 的设计，就是要让它里面的容器尽可能多 地共享 Linux Namespace，仅保留必要的隔离和限制能力。这样，Pod 模拟出的效果，就跟虚拟 机里程序间的关系非常类似了。 
+除了上述跟“机器”相关的配置外，你可能也会发现，凡是跟容器的 Linux Namespace 相关的属性，也一定是 Pod 级别的。这个原因也很容易理解:Pod 的设计，就是要让它里面的容器尽可能多地共享 Linux Namespace，仅保留必要的隔离和限制能力。这样，Pod 模拟出的效果，就跟虚拟机里程序间的关系非常类似了。 
 
 举个例子，在下面这个 Pod 的 YAML 文件中，我定义了 shareProcessNamespace=true: 
 
@@ -204,18 +204,18 @@ spec:
 
 这就意味着这个 Pod 里的容器要共享 PID Namespace。
 
-在 Pod 的 YAML 文件里声明开启它 们俩，其实等同于设置了 docker run 里的 -it(-i 即 stdin，-t 即 tty)参数。 
+在 Pod 的 YAML 文件里声明开启它们俩，其实等同于设置了 docker run 里的 -it(-i 即 stdin，-t 即 tty)参数。 
 
-如果你还是不太理解它们俩的作用的话，可以直接认为 tty 就是 Linux 给用户提供的一个常驻小程 序，用于接收用户的标准输入，返回操作系统的标准输出。当然，为了能够在 tty 中输入信息，你 还需要同时开启 stdin(标准输入流)。 
+如果你还是不太理解它们俩的作用的话，可以直接认为 tty 就是 Linux 给用户提供的一个常驻小程 序，用于接收用户的标准输入，返回操作系统的标准输出。当然，为了能够在 tty 中输入信息，你还需要同时开启 stdin(标准输入流)。 
 
 Kubernetes 项目中对 Container 的定义，和 Docker 相比并没有什么太大区别。我在前面的容器
 技术概念入门系列文章中，和你分享的 Image(镜像)、Command(启动命令)、workingDir(容器的工作目录)、Ports(容器要开发的端口)，以及 volumeMounts(容器要挂载的 Volume)都是构成 Kubernetes 项目中 Container 的主要字段。不过在这里，还有这么几个属性值得你额外关注。
 
 首先，是 ImagePullPolicy 字段。它定义了镜像拉取的策略。而它之所以是一个 Container 级别的 属性，是因为容器镜像本来就是 Container 定义中的一部分。 
 
-ImagePullPolicy 的值默认是 Always，即每次创建 Pod 都重新拉取一次镜像。另外，当容器的镜 像是类似于 nginx 或者 nginx:latest 这样的名字时，ImagePullPolicy 也会被认为 Always。 
+ImagePullPolicy 的值默认是 Always，即每次创建 Pod 都重新拉取一次镜像。另外，当容器的镜像是类似于 nginx 或者 nginx:latest 这样的名字时，ImagePullPolicy 也会被认为 Always。 
 
-而如果它的值被定义为 Never 或者 IfNotPresent，则意味着 Pod 永远不会主动拉取这个镜像，或 者只在宿主机上不存在这个镜像时才拉取。 
+而如果它的值被定义为 Never 或者 IfNotPresent，则意味着 Pod 永远不会主动拉取这个镜像，或者只在宿主机上不存在这个镜像时才拉取。 
 
 其次，是 Lifecycle 字段。它定义的是 Container Lifecycle Hooks。顾名思义，Container Lifecycle Hooks 的作用，是在容器状态发生变化时触发一系列“钩子”。我们来看这样一个例子:
 
@@ -242,9 +242,9 @@ postStart 它指的是，在容器启动后，立刻执行一个指定的操作�
 
 而类似地，preStop 发生的时机，则是容器被杀死之前(比如，收到了 SIGKILL 信号)。而需要明确的是，preStop 操作的执行，是同步的。所以，它会阻塞当前的容器杀死流程，直到这个 Hook 定义操作完成之后，才允许容器被杀死，这跟 postStart 不一样。
 
-Pod 生命周期的变化，主要体现在 Pod API 对象的Status 部分，这是它除了 Metadata 和 Spec 之外的第三个重要字段。其中，pod.status.phase，就是 Pod 的当前状态，它有如下几种可能的情 况: 
+Pod 生命周期的变化，主要体现在 Pod API 对象的Status 部分，这是它除了 Metadata 和 Spec 之外的第三个重要字段。其中，pod.status.phase，就是 Pod 的当前状态，它有如下几种可能的情况: 
 
-1. Pending。这个状态意味着，Pod 的 YAML 文件已经提交给了 Kubernetes，API 对象已经被 创建并保存在 Etcd 当中。但是，这个 Pod 里有些容器因为某种原因而不能被顺利创建。比 如，调度不成功。 
+1. Pending。这个状态意味着，Pod 的 YAML 文件已经提交给了 Kubernetes，API 对象已经被创建并保存在 Etcd 当中。但是，这个 Pod 里有些容器因为某种原因而不能被顺利创建。比如，调度不成功。 
 2. Running。这个状态下，Pod 已经调度成功，跟一个具体的节点绑定。它包含的容器都已经创 建成功，并且至少有一个正在运行中。 
 3. Succeeded。这个状态意味着，Pod 里的所有容器都正常运行完毕，并且已经退出了。这种情 况在运行一次性任务时最为常见。 
 4. Failed。这个状态下，Pod 里至少有一个容器以不正常的状态(非 0 的返回码)退出。这个状 态的出现，意味着你得想办法 Debug 这个容器的应用，比如查看 Pod 的 Events 和日志。 
@@ -258,7 +258,7 @@ Pod 生命周期的变化，主要体现在 Pod API 对象的Status 部分，这
 
 Pod 的这些状态信息，是我们判断应用运行情况的重要标准，尤其是 Pod 进入了非“Running”状 态后，你一定要能迅速做出反应，根据它所代表的异常情况开始跟踪和定位，而不是去手忙脚乱地 查阅文档。 
 
-作为 Kubernetes 项目里最核心的编排对象，Pod 携带的信息非常丰富。其中，资源定义(比如 CPU、内存等)，以及调度相关的字段，我会在后面专门讲解调度器时再进行深入的分析。在本 篇，我们就先从一种特殊的 Volume 开始，来帮助你更加深入地理解 Pod 对象各个重要字段的含 义。 
+作为 Kubernetes 项目里最核心的编排对象，Pod 携带的信息非常丰富。其中，资源定义(比如 CPU、内存等)，以及调度相关的字段，我会在后面专门讲解调度器时再进行深入的分析。在本篇，我们就先从一种特殊的 Volume 开始，来帮助你更加深入地理解 Pod 对象各个重要字段的含 义。 
 
 这种特殊的 Volume，叫作 Projected Volume，你可以把它翻译为“投射数据卷”。 
 
@@ -270,7 +270,7 @@ Pod 的这些状态信息，是我们判断应用运行情况的重要标准，�
 2. ConfigMap;
 3. Downward API; 
 
-4. ServiceAccountToken。 
+4. ServiceAccountToken；
 
 Secret
 
@@ -313,7 +313,7 @@ $ kubectl create secret generic user --from-file=./username.txt
 $ kubectl create secret generic pass --from-file=./password.txt
 ```
 
-其中，username.txt 和 password.txt 文件里，存放的就是用户名和密码;而 user 和 pass，则是我为 Secret 对象指定的名字。而我想要查看这些 Secret 对象的话，只要执行一条 kubectl get 命令就可以了:
+其中，username.txt 和 password.txt 文件里，存放的就是用户名和密码；而 user 和 pass，则是我为 Secret 对象指定的名字。而我想要查看这些 Secret 对象的话，只要执行一条 kubectl get 命令就可以了:
 
 ```shell
 $ kubectl get secrets
@@ -468,7 +468,7 @@ Service Account
 
 Service Account 对象的作用，就是 Kubernetes 系统内置的一种“服务账户”，它是 Kubernetes 进行权限分配的对象。比如，Service Account A，可以只被允许对 Kubernetes API 进行 GET 操 作，而 Service Account B，则可以有 Kubernetes API 的所有操作的权限。 
 
-像这样的 Service Account 的授权信息和文件，实际上保存在它所绑定的一个特殊的 Secret 对象里 的。这个特殊的 Secret 对象，就叫作ServiceAccountToken。任何运行在 Kubernetes 集群上的 应用，都必须使用这个 ServiceAccountToken 里保存的授权信息，也就是 Token，才可以合法地 访问 API Server。 
+像这样的 Service Account 的授权信息和文件，实际上保存在它所绑定的一个特殊的 Secret 对象里 的。这个特殊的 Secret 对象，就叫作ServiceAccountToken。任何运行在 Kubernetes 集群上的应用，都必须使用这个 ServiceAccountToken 里保存的授权信息，也就是 Token，才可以合法地访问 API Server。 
 
 所以说，Kubernetes 项目的 Projected Volume 其实只有三种，因为第四种 ServiceAccountToken，只是一种特殊的 Secret 而已。 
 
@@ -478,7 +478,7 @@ Service Account 对象的作用，就是 Kubernetes 系统内置的一种“服�
 
 当然还是靠 Projected Volume 机制。 
 
-如果你查看一下任意一个运行在 Kubernetes 集群里的 Pod，就会发现，每一个 Pod，都已经自动 声明一个类型是 Secret、名为 default-token-xxxx 的 Volume，然后 自动挂载在每个容器的一个 固定目录上。比如: 
+如果你查看一下任意一个运行在 Kubernetes 集群里的 Pod，就会发现，每一个 Pod，都已经自动声明一个类型是 Secret、名为 default-token-xxxx 的 Volume，然后 自动挂载在每个容器的一个 固定目录上。比如: 
 
 ```
 $ kubectl describe pod nginx-deployment-5c678cfb6d-lg9lw
@@ -492,9 +492,9 @@ Volumes:
     Optional:    false
 ```
 
-这个 Secret 类型的 Volume，正是默认 Service Account 对应的 ServiceAccountToken。所以 说，Kubernetes 其实在每个 Pod 创建的时候，自动在它的 spec.volumes 部分添加上了默认 ServiceAccountToken 的定义，然后自动给每个容器加上了对应的 volumeMounts 字段。这个过 程对于用户来说是完全透明的。 
+这个 Secret 类型的 Volume，正是默认 Service Account 对应的 ServiceAccountToken。所以说，Kubernetes 其实在每个 Pod 创建的时候，自动在它的 spec.volumes 部分添加上了默认 ServiceAccountToken 的定义，然后自动给每个容器加上了对应的 volumeMounts 字段。这个过程对于用户来说是完全透明的。 
 
-这样，一旦 Pod 创建完成，容器里的应用就可以直接从这个默认 ServiceAccountToken 的挂载目 录里访问到授权信息和文件。这个容器内的路径在 Kubernetes 里是固定的， 即:/var/run/secrets/kubernetes.io/serviceaccount ，而这个 Secret 类型的 Volume 里面的内 容如下所示: 
+这样，一旦 Pod 创建完成，容器里的应用就可以直接从这个默认 ServiceAccountToken 的挂载目录里访问到授权信息和文件。这个容器内的路径在 Kubernetes 里是固定的， 即:/var/run/secrets/kubernetes.io/serviceaccount ，而这个 Secret 类型的 Volume 里面的内容如下所示: 
 
 ```
 $ ls /var/run/secrets/kubernetes.io/serviceaccount
@@ -539,7 +539,7 @@ spec:
 
 在这个 Pod 中，我们定义了一个有趣的容器。它在启动之后做的第一件事，就是在 /tmp 目录下创 建了一个 healthy 文件，以此作为自己已经正常运行的标志。而 30 s 过后，它会把这个文件删除 掉。 
 
-与此同时，我们定义了一个这样的 livenessProbe(健康检查)。它的类型是 exec，这意味着，它 会在容器启动后，在容器里面执行一句我们指定的命令，比如:“cat /tmp/healthy”。这时，如 果这个文件存在，这条命令的返回值就是 0，Pod 就会认为这个容器不仅已经启动，而且是健康 的。这个健康检查，在容器启动 5 s 后开始执行(initialDelaySeconds: 5)，每 5 s 执行一次 (periodSeconds: 5)。 如果  /tmp 下文件不存在说明 pod 已经不健康了。
+与此同时，我们定义了一个这样的 livenessProbe(健康检查)。它的类型是 exec，这意味着，它会在容器启动后，在容器里面执行一句我们指定的命令，比如:“cat /tmp/healthy”。这时，如果这个文件存在，这条命令的返回值就是 0，Pod 就会认为这个容器不仅已经启动，而且是健康的。这个健康检查，在容器启动 5 s 后开始执行(initialDelaySeconds: 5)，每 5 s 执行一次 (periodSeconds: 5)。 如果  /tmp 下文件不存在说明 pod 已经不健康了。
 
 Kubernetes 里的Pod 恢复机制，也叫 restartPolicy。它是 Pod 的 Spec 部分的一个标准字段(pod.spec.restartPolicy)，默认值是 Always，即:任何时候这个容器发生了异常，它一定会被重新创建。
 
@@ -551,7 +551,7 @@ Kubernetes 里的Pod 恢复机制，也叫 restartPolicy。它是 Pod 的 Spec �
 
 - Always:在任何情况下，只要容器不在运行状态，就自动重启容器; 
 
-- OnFailure: 只在容器 异常时才自动重启容器;
+- OnFailure: 只在容器异常时才自动重启容器;
 
 - Never: 从来不重启容器 
 
@@ -747,7 +747,7 @@ kubectl get deployments
 1. DESIRED:用户期望的 Pod 副本个数(spec.replicas 的值); 
 2. CURRENT:当前处于 Running 状态的 Pod 的个数; 
 3. UP-TO-DATE:当前处于最新版本的 Pod 的个数，所谓最新版本指的是 Pod 的 Spec 部分 与 Deployment 里 Pod 模板里定义的完全一致; 
-4. AVAILABLE:当前已经可用的 Pod 的个数，即:既是 Running 状态，又是最新版本，并 且已经处于 Ready(健康检查正确)状态的 Pod 的个数。 
+4. AVAILABLE:当前已经可用的 Pod 的个数，即:既是 Running 状态，又是最新版本，并且已经处于 Ready(健康检查正确)状态的 Pod 的个数。 
 
 可以看到，只有这个 AVAILABLE 字段，描述的才是用户所期望的最终状态。 
 
@@ -767,7 +767,7 @@ NAME                          DESIRED   CURRENT   READY   AGE
 nginx-deployment-3167673210   3         3         3       20s
 ```
 
- ReplicaSet 的名字，则是由 Deployment 的名字和一个随机字符串共同组成。这个随机字符串叫作 pod-template-hash，在我们这个例子里就是:3167673210。而 ReplicaSet 的 DESIRED、CURRENT 和 READY 字段的含义，和 Deployment 中是一致
+ReplicaSet 的名字，则是由 Deployment 的名字和一个随机字符串共同组成。这个随机字符串叫作 pod-template-hash，在我们这个例子里就是:3167673210。而 ReplicaSet 的 DESIRED、CURRENT 和 READY 字段的含义，和 Deployment 中是一致
 的。
 
 当你修改了 Deployment 里的 Pod 定义之后，Deployment Controller 会 使用这个修改后的 Pod 模板，创建一个新的 ReplicaSet(hash=1764197365)，这个新的 ReplicaSet 的初始 Pod 副本数是:0。 
@@ -794,9 +794,9 @@ nginx-deployment-3167673210   0         0         0       30s
 kubectl set image deployment/nginx-deployment nginx=nginx:1.91
 ```
 
-而为了进一步保证服务的连续性，Deployment Controller 还会确保，在任何时间窗口内，只 有指定比例的 Pod 处于离线状态。同时，它也会确保，在任何时间窗口内，只有指定比例的新 Pod 被创建出来。这两个比例的值都是可以配置的，默认都是 DESIRED 值的 25%。 
+而为了进一步保证服务的连续性，Deployment Controller 还会确保，在任何时间窗口内，只有指定比例的 Pod 处于离线状态。同时，它也会确保，在任何时间窗口内，只有指定比例的新 Pod 被创建出来。这两个比例的值都是可以配置的，默认都是 DESIRED 值的 25%。 
 
-所以，在上面这个 Deployment 的例子中，它有 3 个 Pod 副本，那么控制器在“滚动更 新”的过程中永远都会确保至少有 2 个 Pod 处于可用状态，至多只有 4 个 Pod 同时存在于集 群中。这个策略，是 Deployment 对象的一个字段，名叫 RollingUpdateStrategy，如下所 示: 
+所以，在上面这个 Deployment 的例子中，它有 3 个 Pod 副本，那么控制器在“滚动更 新”的过程中永远都会确保至少有 2 个 Pod 处于可用状态，至多只有 4 个 Pod 同时存在于集群中。这个策略，是 Deployment 对象的一个字段，名叫 RollingUpdateStrategy，如下所 示: 
 
 ```
 spec:
@@ -868,9 +868,9 @@ kubectl rollout resume deployment/nginx-deployment
 
 #### DaemonSet
 
-DaemonSet 其实是一个非常简单的控制器。在它 的控制循环中，只需要遍历所有节点，然后根据节点上是否有被管理 Pod 的情况，来决定是否 要创建或者删除一个 Pod。 
+DaemonSet 其实是一个非常简单的控制器。在它的控制循环中，只需要遍历所有节点，然后根据节点上是否有被管理 Pod 的情况，来决定是否要创建或者删除一个 Pod。 
 
-只不过，在创建每个 Pod 的时候，DaemonSet 会自动给这个 Pod 加上一个 nodeAffinity，从 而保证这个 Pod 只会在指定节点上启动。同时，它还会自动给这个 Pod 加上一个 Toleration，从而忽略节点的 unschedulable“污点”。 
+只不过，在创建每个 Pod 的时候，DaemonSet 会自动给这个 Pod 加上一个 nodeAffinity，从而保证这个 Pod 只会在指定节点上启动。同时，它还会自动给这个 Pod 加上一个 Toleration，从而忽略节点的 unschedulable“污点”。 
 
 当然，你也可以在 Pod 模板里加上更多种类的 Toleration，从而利用 DaemonSet 实现自己的目的。
 
@@ -900,9 +900,9 @@ spec:
   backoffLimit: 4
 ```
 
-这个 Job 对象在创建后，它的 Pod 模板，被自动加上了一个 controller-uid=< 一 个随机字符串 > 这样的 Label。而这个 Job 对象本身，则被自动加上了这个 Label 对应的 Selector，从而 保证了 Job 与它所管理的 Pod 之间的匹配关系。
+这个 Job 对象在创建后，它的 Pod 模板，被自动加上了一个 controller-uid=< 一 个随机字符串 > 这样的 Label。而这个 Job 对象本身，则被自动加上了这个 Label 对应的 Selector，从而保证了 Job 与它所管理的 Pod 之间的匹配关系。
 
-restartPolicy 在 Job 对象里只允许被设置为 Never 和 OnFailure。离线计算的 Pod 永远都不应 该被重启，否则它们会再重新计算一遍。那么离线作业失败后 Job Controller 就会不断地尝试创建一个新 Pod，会不断地有新 Pod 被创建出来。这个尝试肯定不能无限进行下去。所以，我们就在 Job 对象的 spec.backoffLimit 字段 里定义了重试次数为 4(即，backoffLimit=4)，而这个字段的默认值是 6。
+restartPolicy 在 Job 对象里只允许被设置为 Never 和 OnFailure。离线计算的 Pod 永远都不应该被重启，否则它们会再重新计算一遍。那么离线作业失败后 Job Controller 就会不断地尝试创建一个新 Pod，会不断地有新 Pod 被创建出来。这个尝试肯定不能无限进行下去。所以，我们就在 Job 对象的 spec.backoffLimit 字段 里定义了重试次数为 4(即，backoffLimit=4)，而这个字段的默认值是 6。
 
 当一个 Job 的 Pod 运行结束后，它会进入 Completed 状态。但是，如果这个 Pod 因为某种原因一直不肯结束呢? spec.activeDeadlineSeconds 字段可以设置最长运行时间。
 
@@ -963,13 +963,13 @@ kubectl get jobs
 在 Kubernetes 项目中，我们所推崇的使用方法是: 
 
 - 首先，通过一个“编排对象”，比如 Pod、Job、CronJob 等，来描述你试图管理的应用;
--  然后，再为它定义一些“服务对象”，比如 Service、Secret、Horizontal Pod Autoscaler(自 动水平扩展器)等。这些对象，会负责具体的平台级功能。 
+-  然后，再为它定义一些“服务对象”，比如 Service、Secret、Horizontal Pod Autoscaler(自动水平扩展器)等。这些对象，会负责具体的平台级功能。 
 
 这种使用方法，就是所谓的“声明式 API”。这种 API 对应的“编排对象”和“服务对象”，都是 Kubernetes 项目中的 API 对象(API Object)。 
 
 **可以使用 Docker 部署 K8S 吗？**
 
-已经提到 kubelet 是 Kubernetes 项目用来操作 Docker 等容器运行时的核心 组件。可是，除了跟容器运行时打交道外，kubelet 在配置容器网络、管理容器数据卷时，都需要 直接操作宿主机。 而如果现在 kubelet 本身就运行在一个容器里，那么直接操作宿主机就会变得很麻烦。 
+已经提到 kubelet 是 Kubernetes 项目用来操作 Docker 等容器运行时的核心组件。可是，除了跟容器运行时打交道外，kubelet 在配置容器网络、管理容器数据卷时，都需要 直接操作宿主机。 而如果现在 kubelet 本身就运行在一个容器里，那么直接操作宿主机就会变得很麻烦。 
 
 ### kubeadm
 
@@ -985,7 +985,7 @@ kubeadm 是一键安装 K8S 的方案。
 
 Linux 内核的版本必须是否是 3.10 以上?
  Linux Cgroups 模块是否可用?
- 机器的 hostname 是否标准?在 Kubernetes 项目里，机器的名字以及一切存储在 Etcd 中的 API 对象，都必须使用标准的 DNS 命名(RFC 1123)。
+机器的 hostname 是否标准?在 Kubernetes 项目里，机器的名字以及一切存储在 Etcd 中的 API 对象，都必须使用标准的 DNS 命名(RFC 1123)。
  用户安装的 kubeadm 和 kubelet 的版本是否匹配?
  机器上是不是已经安装了 Kubernetes 的二进制文件?
  Kubernetes 的工作端口 10250/10251/10252 端口是不是已经被占用?

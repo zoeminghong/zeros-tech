@@ -299,7 +299,7 @@ $ docker inspect web
         "Type": "volume",
         "Name": "my-vol",
         "Source": "/var/lib/docker/volumes/my-vol/_data",
-        "Destination": "/app",
+        "Destination": "/webapp",
         "Driver": "local",
         "Mode": "",
         "RW": true,
@@ -536,6 +536,8 @@ docker run --rm --hostname barker alpine:latest nslookup barker
 
 设置 DNS
 
+指定容器使用的DNS服务器，默认和宿主一致；
+
 ```shell
 # --dns 支持设置多个 DNS 服务器
 docker run --rm --dns 8.8.8.8 alpine:latest nsloopup docker.com
@@ -544,6 +546,8 @@ docker run --rm --dns 8.8.8.8 alpine:latest nsloopup docker.com
 如果经常在不同网络供应商之间切换，使用一个特定的 DNS 服务器能够提供一致性。
 
 设置查找域
+
+指定容器DNS搜索域名，默认和宿主一致；
 
 当设置该选项时，在查询时，任何不包括一直顶级域名（.com,.net）的主机名都会自动加上该后缀名。
 

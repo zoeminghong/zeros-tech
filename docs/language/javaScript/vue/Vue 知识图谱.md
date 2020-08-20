@@ -153,7 +153,58 @@ var vm = new Vue({
 // => 2
 ```
 
+### format
+
+数据格式化
+
+```html
+ <el-table-column
+ prop="requestNum"
+ label="本月调用次数"
+ :formatter="formatterRequestNum">
+ </el-table-column>
+//js
+formatterRequestNum(row, column, cellValue) {
+                if (cellValue === null) {
+                    return 0;
+                } else {
+                    return cellValue;
+                }
+            },
+```
+
+### JSON相关操作
+
+#### 筛选列表中的值
+
+```js
+let dd = this.datasource.filter(function (d) {
+    return d.id === id;
+});
+if (dd.length > 0) {
+    dd[0].instanceId = id;
+    this.$emit('onSelectDatasource', dd[0])
+}
+```
+
+#### 删除值
+
+```js
+// splice
+this.formData.splice(index, 1);
+```
+
+#### 添加值
+
+```js
+this.formData.push({
+                    "parameterType": ''
+                });
+```
+
 ## async/await
+
+Vue 模式请求是异步的方式，所以当存在先后顺序的场景，async/await 要求当前执行的内容结束之后，才能执行下面的。
 
 异步调用实现方案。**await 只在异步函数里面才起作用**。它可以放在任何异步的，基于 promise 的函数之前。**它会暂停代码在该行上，直到 promise 完成**，然后返回结果值。在暂停的同时，其他正在等待执行的代码就有机会执行了。await 可以保证异步执行时的先后顺序。
 
@@ -179,3 +230,4 @@ hello().then(alert);
 ## solt
 
 https://juejin.im/post/5a69ece0f265da3e5a5777ed
+

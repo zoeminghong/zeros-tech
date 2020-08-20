@@ -7,6 +7,10 @@ group:
 
 # DockerFile
 
+[命令大全](https://runoob.com/docker/docker-command-manual.html)
+
+[Dockerfile](https://www.runoob.com/docker/docker-dockerfile.html)
+
 为什么使用dockerfile
 
 dockerfile方式构建镜像更容易被版本管理工具进行管理，同时，dockerfile构建程序自身使用缓存技术来解决快速开发和迭代代理的问题。能很简单的与现有的构建系统工具结合工作。
@@ -112,36 +116,114 @@ WORKDIR /app
 
 对外开放 TCP 的端口号。
 
-### CMD 容器启动命令
+### CMD
 
-启动容器的时候，需要指定所运行的程序及参数。
+类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:
 
-两种格式：
+- CMD 在docker run 时运行。
+- RUN 是在 docker build。
 
-- `shell` 格式：`CMD <命令>`
-- `exec` 格式：`CMD ["可执行文件", "参数1", "参数2"...]` ，参数列表格式：`CMD ["参数1", "参数2"...]`。在指定了 `ENTRYPOINT` 指令后，用 `CMD` 指定具体的参数。
+**作用**：为启动的容器指定默认要运行的程序，程序运行结束，容器也就结束。CMD 指令指定的程序可被 docker run 命令行参数中指定要运行的程序所覆盖。
 
-提到 `CMD` 就不得不提容器中应用在**前台执行和后台执行**的问题。
+**注意**：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。
 
-对于容器而言，其启动程序就是容器应用进程，容器就是为了主进程而存在的，主进程退出，容器就失去了存在的意义，从而退出，其它辅助进程不是它需要关心的东西。
+格式：
 
-不能直接使用 `service nginx start`
-
-```
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### ENTRYPOINT 入口点
-
-指定容器启动程序及参数。
-
-```
-<ENTRYPOINT> "<CMD>"
+```shell
+CMD <shell 命令> # (shell 形式)
+CMD ["<可执行文件或命令>","<param1>","<param2>",...] # (exec 形式, 推荐)
+CMD ["<param1>","<param2>",...]  # 该写法是为 ENTRYPOINT 指令指定的程序提供默认参数
 ```
 
-CMD 命令会被 `docker run name CMD` 命令所覆盖，有时候我们就需要启动容器时，传入外部参数，实现容器的正确启动，这个时候就需要用到 ENTRYPOINT。
+推荐使用第二种格式，执行过程比较明确。第一种格式实际上在运行的过程中也会自动转换成第二种格式运行，并且默认可执行文件是 sh。
 
-CMD 的执行结果，会作为 ENTRYPOINT 的参数使用。
+### ENTRYPOINT
+
+类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖，而且这些命令行参数会被当作参数送给 ENTRYPOINT 指令指定的程序。
+
+但是, 如果运行 docker run 时使用了 **--entrypoint** 选项，此选项的参数可当作要运行的**程序覆盖** ENTRYPOINT 指令指定的程序。
+
+**优点**：在执行 docker run 的时候可以指定 ENTRYPOINT 运行所需的参数。
+
+**注意**：如果 Dockerfile 中如果存在多个 ENTRYPOINT 指令，**仅最后一个生效**。
+
+格式：
+
+```
+ENTRYPOINT ["<executeable>","<param1>","<param2>",...]
+```
+
+可以搭配 CMD 命令使用：一般是变参才会使用 CMD ，**这里的 CMD 等于是在给 ENTRYPOINT 传参**，以下示例会提到。
+
+示例：
+
+假设已通过 Dockerfile 构建了 nginx:test 镜像：
+
+```
+FROM nginx
+
+ENTRYPOINT ["nginx", "-c"] # 定参
+CMD ["/etc/nginx/nginx.conf"] # 变参 
+```
+
+1、不传参运行
+
+```
+$ docker run nginx:test
+```
+
+容器内会默认运行以下命令，启动主进程。
+
+```
+nginx -c /etc/nginx/nginx.conf
+```
+
+2、传参运行
+
+```
+$ docker run  nginx:test /etc/nginx/new.conf
+```
+
+容器内会默认运行以下命令，启动主进程(/etc/nginx/new.conf:假设容器内已有此文件)
+
+```
+nginx -c /etc/nginx/new.conf
+```
+
+### RUN/CMD/ENTRYPOINT 区别？
+
+- RUN：用于安装一些环境软件内容；
+- CMD：提供默认的可变参数，这个可变性可以在 Docker run 时，使用新值覆盖；
+- ENTRYPOINT ：一般作为启动参数，需要实现可变性需要CMD的配合或者在 Docker run 时，使用 --entrypoint；
+
+可变参数实现：
+
+**CMD和ENTRYPOINT 配合使用：**
+
+在 ENTRYPOINT  后面加上 CMD 命令，等于 ENTRYPOINT  + CMD 两者命令合并执行的结果，ENTRYPOINT  是静态参数，CMD 支持动态，也就是在 docker run时传入。上面的 Nginx 例子就是这样实现的。
+
+如果需要多个可变参数的场景，怎么办呢？
+
+- 环境变量方式
+- `"$0" "$@"`
+- ARG
+
+**环境变量：**通过 ENV 方式定义；
+
+**`"$0" "$@"`：**0表示第几个参数，@表示剩余参数，使用引号；
+
+```
+ENTRYPOINT java $JAVA_OPTS -jar app.jar "$0" "$@"
+```
+
+```shell
+# aa bb 是一个整体
+docker run test "aa bb" cc "dd ee"
+```
+
+**arg：**构建参数，与 ENV 作用一至。不过作用域不一样。ARG 设置的环境变量仅对 Dockerfile 内有效，也就是说只有 docker build 的过程中有效，构建好的镜像内不存在此环境变量。
+
+构建命令 docker build 中可以用 --build-arg <参数名>=<值> 来覆盖。
 
 ### COPY 复制
 
@@ -230,10 +312,33 @@ docker build -tag ubuntu:1.2.0
 `--file` :指定 dockerfile 名字
 
 ```
-docker build -tag --file dockerfile ubuntu:1.2.0
+docker build -t ubuntu:1.2.0 --file dockerfile
 ```
 
 `--quiie/-q`: 安静模式，不显示打包过程
 
 在构建过程中的每一步都会有一个新层被加入到要产生的镜像中。同时，构建程序会缓存每一步的结果，当某一步出现问题之后，等问题修复之后，会继续执行。
+
+## 问题与解答
+
+**1、时区问题**
+
+```shell
+# centos
+RUN mkdir -p /usr/share/zoneinfo/Asia/
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'Asia/Shanghai' >/etc/timezone
+```
+
+[时区详见](https://segmentfault.com/a/1190000022426190)
+
+**2、镜像导出与导入**
+
+```shell
+# 导出
+docker export -o <busybox.tar.gz> busybox:1.0.0
+
+# 导入
+docker load < busybox.tar.gz
+```
 
