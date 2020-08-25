@@ -2,11 +2,12 @@
 
 Kubctl 命令是操作 kubernetes 集群的最直接和最 skillful 的途径，这个60多MB大小的二进制文件，到底有啥能耐呢？请看下文：
 
-[官方文档](https://kubernetes.io/docs/reference/kubectl/kubectl/)
+- [官方文档](https://kubernetes.io/docs/reference/kubectl/kubectl/)
 
-[Kubernetes API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/)
+- [Kubernetes API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/)
 
-[Kubernetes Guestbook](https://github.com/kubernetes/examples/blob/master/guestbook/all-in-one/guestbook-all-in-one.yaml)
+- [Kubernetes Guestbook](https://github.com/kubernetes/examples/blob/master/guestbook/all-in-one/guestbook-all-in-one.yaml)
+- ❗️[kubectl](http://docs.kubernetes.org.cn/468.html)
 
 ## Kubectl 自动补全
 
@@ -242,6 +243,8 @@ kubectl api-resources --namespaced=true
 
 # Not in a namespace
 kubectl api-resources --namespaced=false
+# 查看标签信息
+kubectl get nodes  --show-labels
 
 # -w 监听查看
 kubectl get pods --show-labels  -w

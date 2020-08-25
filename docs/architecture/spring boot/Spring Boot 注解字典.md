@@ -59,3 +59,13 @@ public class Book {
 @ConditionalOnClass(name = "com.aliyun.odps.jdbc.OdpsDriver")
 ```
 
+### @DateTimeFormat
+
+格式化日期参数。
+
+> Get 请求中，用 Date 作为接收参数，必然会存在空日期的值存在，使用该注解可以避免报错。
+
+```java
+@RequestParam(value = "buyTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date buyTime
+```
+
