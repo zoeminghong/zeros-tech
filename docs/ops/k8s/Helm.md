@@ -109,6 +109,8 @@ helm list
 helm inspect <Chart>
 # 查看包中可以进行配置的参数项有哪些
 helm inspect values stable/mariadb
+# 将 Chart 所有文件下载到本地
+helm fetch <Chart> --untar --untardir ./
 
 # 跟踪 release 状态或重新读取配置信息
 helm status <release name>

@@ -8,6 +8,10 @@
 
 [Kubernetes Tutorial](https://www.tutorialspoint.com/kubernetes/kubernetes_architecture.htm)
 
+## 问题
+
+- 一个 ClusterIP Service 能被 NodePort 所代理吗？
+
 ## 功能组件
 
 ![image-20200730130048016](assets/image-20200730130048016.png)
@@ -341,9 +345,18 @@ spec:
 
 `<serviceName>.<namespace>.svc.cluster.local` 是 K8s 默认会生成的路径。
 
+小结
+
+- Service 支持多层级，用service01作为对外调用的口子，service01-1和service01-2只在内部使用；
+- 一个 Pod 拥有一个k8s集群的一个内部ip，Pod 内部 container ip 由 Pod 自己生成；
+
 ### Ingress
 
 Ingress 用于实现 Service 的负载均衡。
+
+[Ingress](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#ingress-v1beta1-networking-k8s-io) 公开了从集群外部到集群内[服务](https://kubernetes.io/zh/docs/concepts/services-networking/service/)的 HTTP 和 HTTPS 路由。**只支持 HTTP 和 HTTPS 两种协议哦。**
+
+将 HTTP 和 HTTPS 以外的服务公开到 Internet 时，通常使用 [Service.Type=NodePort](https://kubernetes.io/zh/docs/concepts/services-networking/service/#nodeport) 或 [Service.Type=LoadBalancer](https://kubernetes.io/zh/docs/concepts/services-networking/service/#loadbalancer) 类型的服务。
 
 [Kubernetes Ingress Controller的使用介绍及高可用落地](https://www.servicemesher.com/blog/kubernetes-ingress-controller-deployment-and-ha/)
 
@@ -358,13 +371,41 @@ Ingress 用于实现 Service 的负载均衡。
 如果您明确需要在节点上公开 Pod 的端口，请在使用`hostPort`之前考虑使用[NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport) 服务。
 
 - 避免使用`hostNetwork`，原因与`hostPort`相同。
-
 - 当您不需要`kube-proxy`负载平衡时，使用 [无头服务](/docs/concepts/services-networking/service/#headless- services) (具有`None`的`ClusterIP`)以便于服务发现。
+
+https://kubernetes.io/zh/docs/concepts/services-networking/ingress/
 
 ## 常用命令
 
 ```shell
 # 查看DNS解析
 dig -t A www.baidu.com @10.244.0.7
+```
+
+## 问题与解答
+
+❓如何通过 Label 发布到指定的 Node 节点上？
+
+`spec.nodeSelector` 可以实现 Label 方式部署到指定 Label 节点下面。
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    disktype: ssd  # disktype: ssd 就是一个 label
+```
+
+```shell
+kubectl label nodes <your-node-name> disktype=ssd  # 为Node创建Label
+kubectl get nodes --show-labels # 显示 Node 的 label
 ```
 

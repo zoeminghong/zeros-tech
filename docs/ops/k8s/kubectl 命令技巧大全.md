@@ -31,6 +31,7 @@ $ kubectl config view -o jsonpath='{.users[?(@.name == "e2e")].user.password}'
 
 $ kubectl config current-context              # 显示当前的上下文
 $ kubectl config use-context my-cluster-name  # 设置默认上下文为 my-cluster-name
+$ kubectl config set-context --current --namespace=devops   # 切换默认的namespace
 
 # 向 kubeconf 中增加支持基本认证的新集群
 $ kubectl config set-credentials kubeuser/foo.kubernetes.com --username=kubeuser --password=kubepassword
@@ -104,7 +105,7 @@ $ kubectl get pods --all-namespaces             # 列出所有 namespace 中的�
 $ kubectl get pods -o wide                      # 列出所有 pod 并显示详细信息
 $ kubectl get deployment my-dep                 # 列出指定 deployment
 $ kubectl get pods --include-uninitialized      # 列出该 namespace 中的所有 pod 包括未初始化的
-
+$ kubectl get all                               # 查看包含 service、pod 信息
 # 使用详细输出来描述命令
 $ kubectl describe nodes my-node
 $ kubectl describe pods my-pod
@@ -181,6 +182,7 @@ $ kubectl patch deployment valid-deployment  --type json   -p='[{"op": "remove",
 ```bash
 $ kubectl edit svc/docker-registry                      # 编辑名为 docker-registry 的 service
 $ KUBE_EDITOR="nano" kubectl edit svc/docker-registry   # 使用其它编辑器
+$ kubectl edit cm redis-ha-configmap   # 编辑 configmap 中数据
 ```
 
 ## Scale 资源
@@ -212,6 +214,7 @@ $ kubectl logs my-pod -c my-container                 # dump 输出 pod 中容�
 $ kubectl logs -f my-pod                              # 流式输出 pod 的日志（stdout）
 $ kubectl logs -f my-pod -c my-container              # 流式输出 pod 中容器的日志（stdout，pod 中有多个容器的情况下使用）
 $ kubectl run -i --tty busybox --image=busybox -- sh  # 交互式 shell 的方式运行 pod
+$ kubectl exec -it redis-redis-ha-server-0  sh
 $ kubectl attach my-pod -i                            # 连接到运行中的容器
 $ kubectl port-forward my-pod 5000:6000               # 转发 pod 中的 6000 端口到本地的 5000 端口
 $ kubectl exec my-pod -it -- ls /                         # 在已存在的容器中执行命令（只有一个容器的情况下）
@@ -255,6 +258,8 @@ kubectl describe pod [name]
 # 查看日志信息
 kubectl logs [pod名称] -c [容器名称]
 ```
+
+
 
 ## 资源类型
 
