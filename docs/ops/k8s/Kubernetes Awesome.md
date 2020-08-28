@@ -384,7 +384,7 @@ dig -t A www.baidu.com @10.244.0.7
 
 ## 问题与解答
 
-❓如何通过 Label 发布到指定的 Node 节点上？
+❓**如何通过 Label 发布到指定的 Node 节点上？**
 
 `spec.nodeSelector` 可以实现 Label 方式部署到指定 Label 节点下面。
 
@@ -407,5 +407,18 @@ spec:
 ```shell
 kubectl label nodes <your-node-name> disktype=ssd  # 为Node创建Label
 kubectl get nodes --show-labels # 显示 Node 的 label
+```
+
+❓**注解与标签的区别？**
+
+[注解](https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/annotations/)为对象附加任意的非标识的元数据。标签一般用来做查找和选择的功能。注解不用于标识和选择对象。 注解中的元数据对结构没有什么要求，可以是结构化或非结构的形式。
+
+```json
+"metadata": {
+  "annotations": {
+    "key1" : "value1",
+    "key2" : "value2"
+  }
+}
 ```
 
