@@ -58,6 +58,14 @@ zipStorePath=wrapper/dists
 
 使用 `gradlew -v` 进行确认。
 
+### Idea 如何避免每次下载 gradle 压缩包
+
+修改项目目录中 gradle 文件夹下 `gradle-wrapper.properties` 文件，distributionUrl 属性设置为你 gradle 本地的路径，但这种方式不通用。
+
+还有一种是修改 Idea 配置方式，在 Gradle 配置中，修改为本地 gradle 路径。
+
+![image-20200829151345068](assets/image-20200829151345068.png)
+
 ## Q&A
 
 ##### 使用 `./gradlew` 命令，发现会重新下载 gradle，这是怎么回事呢？如何进行自定义呢？

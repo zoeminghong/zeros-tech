@@ -2,6 +2,15 @@
 
 > 以下都是基于MacOS下的操作进行说明
 
+## 插件推荐
+
+- [Easy-javadoc](https://github.com/starcwang/easy_javadoc): JavaDoc 生成器；
+- GIt Commit Template：Git 代码提交模板；
+- GjsonFormat：Json 数据格式化处理，在使用例如 Postman 之类的工具时候可以用该工具生成Json 请求参数；
+- Maven Helper：定位 Maven 依赖冲突问题；
+- Rainbow Brackets：高亮括号；
+- Asciidoc：文档编辑器；
+
 ## 快捷键
 
 | 快捷键           | 说明                                                         |
