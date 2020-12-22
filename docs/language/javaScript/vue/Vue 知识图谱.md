@@ -2,6 +2,102 @@
 
 API：https://cn.vuejs.org/v2/api/
 
+## 常见标志
+
+`v-html`：原生HTML
+
+```html
+<span v-html="rawHtml"></span>
+```
+
+`v-bind`：在 HTML 上绑定属性
+
+```html
+<div v-bind:id="dynamicId"></div>
+# 使用表达式，只能单个表达式
+<div v-bind:id="'list-' + id"></div>
+<div :id="'list-' + id"></div>
+
+<a v-bind:[attributeName]="url"> ... </a>
+<a :[attributeName]="url"> ... </a>
+```
+
+` v-if`： If 语句
+
+```html
+<p v-if="seen">现在你看到我了</p>
+```
+
+`v-else`： else 语句
+
+```html
+<div v-bind:class="[{ active: isActive }, errorClass]"></div>
+```
+
+`v-else-if`： elseIf 语句
+
+```html
+<div v-else-if="type === 'B'">
+```
+
+`v-on`：事件绑定
+
+```html
+<a v-on:click="doSomething">...</a>
+<a @click="doSomething">...</a>
+<a v-on:[eventName]="doSomething"> ... </a>
+<a @[eventName]="doSomething"> ... </a>
+```
+
+‼️ 避免使用大写字符来命名键名，因为浏览器会把 attribute 名全部强制转为小写
+
+`v-bind:class`： 动态切换样式class
+
+```html
+<div
+  class="static"
+  v-bind:class="{ active: isActive, 'text-danger': hasError }"
+></div>
+# 数组
+<div v-bind:class="[activeClass, errorClass]"></div>
+<div v-bind:class="[{ active: isActive }, errorClass]"></div>
+```
+
+`v-show`：用于根据条件展示元素的选项
+
+```html
+<h1 v-show="ok">Hello!</h1>
+```
+
+不同的是带有 `v-show` 的元素始终会被渲染并保留在 DOM 中。`v-show` 只是简单地切换元素的 CSS property `display`。
+
+`v-for`： for循环
+
+```html
+ <li v-for="item in items" :key="item.message">
+    {{ item.message }}
+  </li>
+```
+
+
+
+## methods VS computed
+
+- methods 定义的是方法；
+- computed 定义的是计算属性；
+
+**计算属性是基于它们的响应式依赖进行缓存的**。只在相关响应式依赖发生改变时它们才会重新求值。这就意味着只要 `message` 还没有发生改变，多次访问 `reversedMessage` 计算属性会立即返回之前的计算结果，而不必再次执行函数。
+
+❓ 我们为什么需要缓存？假设我们有一个性能开销比较大的计算属性 **A**，它需要遍历一个巨大的数组并做大量的计算。然后我们可能有其他的计算属性依赖于 **A**。如果没有缓存，我们将不可避免的多次执行 **A** 的 getter！如果你不希望有缓存，请用方法来替代。
+
+## computed VS watch
+
+computed 会显得更加简单简约，不需要在data中定义赋值对象；
+
+watch 需要在data中先申明赋值对象；
+
+
+
 ## 自定义 Component
 
 ### 引用组件
@@ -62,7 +158,7 @@ Vue.component('blog-post', {
 <blog-post post-title="hello!"></blog-post>
 ```
 
-使用 `v-bind` 可以实现绑定变量
+使用 `v-bind` 可以实现绑定变量（动态传递）
 
 ```js
 <blog-post v-bind:title="post.title"></blog-post>
@@ -70,7 +166,58 @@ Vue.component('blog-post', {
 
 https://cn.vuejs.org/v2/guide/components-props.html#ad
 
+#### pop 验证
 
+```js
+Vue.component('my-component', {
+  props: {
+    // 基础的类型检查 (`null` 和 `undefined` 会通过任何类型验证)
+    propA: Number,
+    // 多个可能的类型
+    propB: [String, Number],
+    // 必填的字符串
+    propC: {
+      type: String,
+      required: true
+    },
+    // 带有默认值的数字
+    propD: {
+      type: Number,
+      default: 100
+    },
+    // 带有默认值的对象
+    propE: {
+      type: Object,
+      // 对象或数组默认值必须从一个工厂函数获取
+      default: function () {
+        return { message: 'hello' }
+      }
+    },
+    // 自定义验证函数
+    propF: {
+      validator: function (value) {
+        // 这个值必须匹配下列字符串中的一个
+        return ['success', 'warning', 'danger'].indexOf(value) !== -1
+      }
+    }
+  }
+})
+```
+
+## 自定义事件
+
+```
+this.$emit('myEvent')
+<my-component v-on:my-event="doSomething"></my-component>
+```
+
+## 双向绑定
+
+```html
+<text-document v-bind.sync="doc"></text-document>
+```
+
+https://cn.vuejs.org/v2/guide/components-custom-events.html
 
 ## 常见知识点
 
@@ -136,6 +283,32 @@ new Vue({
   }
 })
 ```
+
+### Watch
+
+```js
+var data = { a: 1 }
+// $watch 是一个实例方法
+vm.$watch('a', function (newValue, oldValue) {
+  // 这个回调将在 `vm.a` 改变后调用
+})
+```
+
+用于监听 data 中值的变化，根据值变化，触发处理逻辑。
+
+### 生命周期
+
+beforeCreate
+
+实例被创建钱执行代码。
+
+created
+
+可以用来在一个实例被创建之后执行代码。
+
+mounted
+
+挂载到el对象之后，执行的代码。
 
 ### [mixins](https://cn.vuejs.org/v2/api/#mixins)
 
@@ -230,4 +403,24 @@ hello().then(alert);
 ## solt
 
 https://juejin.im/post/5a69ece0f265da3e5a5777ed
+
+https://cn.vuejs.org/v2/guide/components-slots.html
+
+## 过滤器
+
+```js
+<!-- 在双花括号中 -->
+{{ message | capitalize }}
+
+<!-- 在 `v-bind` 中 -->
+<div v-bind:id="rawId | formatId"></div>
+
+filters: {
+  capitalize: function (value) {
+    if (!value) return ''
+    value = value.toString()
+    return value.charAt(0).toUpperCase() + value.slice(1)
+  }
+}
+```
 
