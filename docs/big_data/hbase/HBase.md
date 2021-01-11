@@ -38,7 +38,7 @@ HStore由一个Memstore及一系列HFile组成。
 
 ## HBase 查数据
 
-![IMG_6327](assets/IMG_6327.jpg)
+![image_63271.jpg](assets/image-63271.jpg)
 
 ## 热点问题
 
