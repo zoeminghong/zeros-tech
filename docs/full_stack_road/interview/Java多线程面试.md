@@ -749,9 +749,11 @@ AQS 使用一个 FIFO 的队列表示排队等待锁的线程，队列头节点�
 
 #### ReadWriteLock
 
+适合读多写少的场景。
+
 ReadWriteLock ，读写锁是用来提升并发程序性能的锁分离技术的 Lock 实现类。可以用于 “多读少写” 的场景，读写锁支持多个读操作并发执行，写操作只能由一个线程来操作。
 
-ReadWriteLock 对向数据结构相对不频繁地写入，但是有多个任务要经常读取这个数据结构的这类情况进行了优化。ReadWriteLock 使得你可以同时有多个读取者，只要它们都不试图写入即可。**如果写锁已经被其他任务持有，那么任何读取者都不能访问，直至这个写锁被释放为止**。
+ReadWriteLock 对象，用于数据结构相对**不频繁地写入**，但是有多个任务要经常读取这个数据结构的这类情况进行了优化。ReadWriteLock 使得你可以同时有多个读取者，只要它们都不试图写入即可。**如果写锁已经被其他任务持有，那么任何读取者都不能访问，直至这个写锁被释放为止**。
 
 ReadWriteLock 对程序性能的提高主要受制于如下几个因素：
 
@@ -771,13 +773,13 @@ ReadWriteLock 对程序性能的提高主要受制于如下几个因素：
 
 - Condition可以精准的对多个不同条件进行控制，wait/notify只能和synchronized关键字一起使用，并且只能唤醒一个或者全部的等待队列；
 
-- Condition需要使用Lock进行控制，使用的时候要注意lock()后及时的unlock()，Condition有类似于await的机制，因此不会产生加锁方式而产生的死锁出现，同时底层实现的是park/unpark的机制，因此也不会产生先唤醒再挂起的死锁，一句话就是**不会产生死锁**，但是wait/notify会产生先唤醒再挂起的死锁。
+- Condition需要使用Lock进行控制，使用的时候要注意lock()后，及时的unlock()，Condition有类似于await的机制，因此不会产生加锁方式而产生的死锁出现，同时底层实现的是park/unpark的机制，因此也不会产生先唤醒再挂起的死锁，一句话就是**不会产生死锁**，但是wait/notify会产生先唤醒再挂起的死锁。
 
 https://xie.infoq.cn/article/86c498a16a15566ab6aa422ef
 
 #### CopyOnWriteArrayList
 
-CopyOnWriteArrayList(免锁容器)的好处之一是当多个迭代器同时遍历和修改这个列表时，不会抛出ConcurrentModificationException 异常。在 CopyOnWriteArrayList 中，写入将导致创建整个底层数组的副本，而源数组将保留在原地，使得复制的数组在被修改时，读取操作可以安全地执行。
+CopyOnWriteArrayList (免锁容器)的好处之一是当多个迭代器同时遍历和修改这个列表时，不会抛出ConcurrentModificationException 异常。在 CopyOnWriteArrayList 中，写入将导致创建整个底层数组的副本，而原数组将保留在原地，使得复制的数组在被修改时，读取操作可以安全地执行。
 
 - 由于写操作的时候，需要拷贝数组，会消耗内存，如果原数组的内容比较多的情况下，可能导致 ygc 或者 fgc 。
 - 不能用于实时读的场景，像拷贝数组、新增元素都需要时间，所以调用一个 set 操作后，读取到数据可能还是旧的,虽然 CopyOnWriteArrayList 能做到最终一致性,但是还是没法满足实时性要求。
