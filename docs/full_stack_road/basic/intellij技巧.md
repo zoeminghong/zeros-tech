@@ -25,6 +25,18 @@
 | command+option+/ | 注释/取消注释与块注释                                        |
 |                  |                                                              |
 
+## 高效配置
+
+### 高亮提示
+
+在开发过程中我们用todo标记未做之事，但表达方面不是特别的明确，例如可能是希望做优化 Optimize，我们应该怎么设置会高亮呢？
+
+> Preference -> Editor -> TODO -> Pattern 中加上 Optimize。
+
+```
+\b(todo|fixme|optimize)\b.*
+```
+
 ## 神奇的快捷键
 
 ### 神奇的Inject language

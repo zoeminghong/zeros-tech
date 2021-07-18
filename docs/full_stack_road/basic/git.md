@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-### 初次运行Git
+### 初次运行 Git
 
 #### 配置提交作者信息
 
@@ -28,14 +28,14 @@ git config --global user.name [昵称或真名]
 git config --global user.email [邮箱地址]
 ```
 
-#### 修改Git编辑器类型
+#### 修改 Git 编辑器类型
 
-默认是命令行工具的形式，Git也支持使用其他的编辑器方式，下面使用`VS Code`进行讲解：
+默认是命令行工具的形式，Git 也支持使用其他的编辑器方式，下面使用`VS Code`进行讲解：
 
 1. 在`VS Code` 的命令面板中添加`code`命令支持（install code）
 2. 从命令行，运行 `git config --global core.editor“code --wait”`
 3. 运行 `git config --global -e` 并使用 `VS Code` 作为编辑器来配置 Git
-4. 将以下内容添加到您的 Git 配置中，以使用VS Code作为比较差异的工具：
+4. 将以下内容添加到您的 Git 配置中，以使用 VS Code 作为比较差异的工具：
 
 ```bash
 [diff]
@@ -51,7 +51,7 @@ git config --global user.email [邮箱地址]
 - `git add -p` followed by `kbstyle(e)` for interactive add
 - `git difftool <commit>^ <commit>` use VS Code as the diff editor for changes
 
-#### 生成SSH秘钥
+#### 生成 SSH 秘钥
 
 ```shell
 # github或者gitlib邮箱账户地址
@@ -60,9 +60,9 @@ ssh-keygen -t rsa -C ["邮箱地址"]
 
 将电脑上的公钥与远程仓库进行绑定
 
-本地会在上面的步骤中会生成一个id_rsa.pub（默认情况是这个名称），将该文件中的内容copy到远程仓库github或gitlib的settings的SSH配置选项中。
+本地会在上面的步骤中会生成一个 id_rsa.pub（默认情况是这个名称），将该文件中的内容 copy 到远程仓库 github 或 gitlib 的 settings 的 SSH 配置选项中。
 
-> Tittle名称自由发挥
+> Tittle 名称自由发挥
 
 #### 1、克隆工程
 
@@ -73,9 +73,9 @@ ssh-keygen -t rsa -C ["邮箱地址"]
 git clone [git@rep.xx.com:zoeminghong/hello.git]
 ```
 
-#### 2、本地新建Git工程
+#### 2、本地新建 Git 工程
 
-> 现在打算将本地的工程，放到Git仓库进行托管了，并且远程Git仓库已经创建了该项目的工程
+> 现在打算将本地的工程，放到 Git 仓库进行托管了，并且远程 Git 仓库已经创建了该项目的工程
 
 ```shell
 #本地初始化工程，会生成一个.git文件
@@ -101,18 +101,18 @@ git push -u origin master
 - Index (索引)/ Stage：暂存区
 - Remote：远程仓库
 - 工作区：项目文件集合
-- 显式引用：SHA1就代表显式引用
-- 隐式引用：HEAD就代表隐式引用
+- 显式引用：SHA1 就代表显式引用
+- 隐式引用：HEAD 就代表隐式引用
 
 ## 基础命令
 
-Git官方文档地址：https://git-scm.com/docs/
+Git 官方文档地址：https://git-scm.com/docs/
 
 `说明`
 
-[tag]：tag名称
+[tag]：tag 名称
 
-[commit]：提交记录，SHA1记录点
+[commit]：提交记录，SHA1 记录点
 
 [remote]：远程仓库名称
 
@@ -127,7 +127,7 @@ git add [路径]
 
 ### commit
 
-作为add操作的后续步骤，将数据真正意义上的被存储
+作为 add 操作的后续步骤，将数据真正意义上的被存储
 
 ```shell
 git commit -m ["记录描述"]
@@ -139,13 +139,13 @@ git commit -m ["记录描述"]
 git commit -m ["记录描述"] --author=["zoeminghong <617405347@qq.com>"]
 ```
 
-**-a或者--all**：自动暂存所有未暂存的和未追踪的文件变化
+**-a 或者--all**：自动暂存所有未暂存的和未追踪的文件变化
 
 ```shell
 git commit -a
 ```
 
-**--amend**：修改最新提交（该提交还未push）
+**--amend**：修改最新提交（该提交还未 push）
 
 ![image-20180922144856758](assets/image-20180922144856758.png)
 
@@ -226,7 +226,7 @@ git rm -f [文件]
 
 ### reflog
 
-可以查看所有分支的本地仓库的所有操作记录（reset操作和删除的commit记录）
+可以查看所有分支的本地仓库的所有操作记录（reset 操作和删除的 commit 记录）
 
 **git reflog show**
 
@@ -241,7 +241,7 @@ git reflog master@{one.week.ago}
 
 **git reflog expire**
 
-将制定日期前的所有reflog记录都移除
+将制定日期前的所有 reflog 记录都移除
 
 ![image-20180908102824354](assets/image-20180908102824354.png)
 
@@ -254,7 +254,7 @@ git reflog expire --expire=all --all
 
 **git reflog delete**
 
-删除指定的reflog记录，与expire相似
+删除指定的 reflog 记录，与 expire 相似
 
 ```shell
 git reflog delete master@{2}
@@ -262,7 +262,7 @@ git reflog delete master@{2}
 
 **git reflog exists**
 
-查询指定reflog记录是否存在
+查询指定 reflog 记录是否存在
 
 ```shell
 git reflog exists [ref]
@@ -280,10 +280,10 @@ git tag [tag] [commit]
 # 查看存在的tag
 git tag
 # 将tag更新到远程
-git push origin --tags 
+git push origin --tags
 ```
 
-如果现在线上出现了一个BUG，急需回退到指定Tag节点，进行修复发布，这个时候怎么办呢
+如果现在线上出现了一个 BUG，急需回退到指定 Tag 节点，进行修复发布，这个时候怎么办呢
 
 ```shell
 # 查看tag列表
@@ -353,7 +353,7 @@ $ git diff [first-branch]...[second-branch]
 
 **git stash**
 
-将工作区中与上个commit提交点之后的修改内容，保存到暂存区，工作区恢复到与上个commit提交点一致。
+将工作区中与上个 commit 提交点之后的修改内容，保存到暂存区，工作区恢复到与上个 commit 提交点一致。
 
 ![image-20180906142516182](assets/image-20180906142516182.png)
 
@@ -375,8 +375,8 @@ git stash save '<message info>'
 **git stash pop**
 
 - `git stash pop` 恢复最新的记录到工作区。
-- `git stash pop --index` 如果使用--index选项，则不仅恢复工作树的更改，还恢复索引的更改。当遇到冲突的时候，就会失败
-- `git stash pop stash@{1}`恢复指定的记录到工作区。stash_id是通过`git stash list`命令得到的 
+- `git stash pop --index` 如果使用--index 选项，则不仅恢复工作树的更改，还恢复索引的更改。当遇到冲突的时候，就会失败
+- `git stash pop stash@{1}`恢复指定的记录到工作区。stash_id 是通过`git stash list`命令得到的
   通过`git stash pop`命令恢复记录后，**会删除当前记录。**
 
 **git stash apply**
@@ -385,7 +385,7 @@ git stash save '<message info>'
 
 **git stash drop**
 
-删除一个存储的进度。如果不指定stash_id，则默认删除最新的存储进度。
+删除一个存储的进度。如果不指定 stash_id，则默认删除最新的存储进度。
 
 ```shell
 git stash drop <stash_id>
@@ -417,7 +417,7 @@ git show-branch --more=35 | tail -10
 
 ### rev-parse
 
-将各类提交名转换为SHA1值
+将各类提交名转换为 SHA1 值
 
 ```shell
 git rev-parse [提交名]
@@ -437,7 +437,7 @@ git blame -L 35 pom.xml
 
 当遇到数据或者提交信息被覆盖的时候，定位最近一次正常提交点的数据。先圈定出错范围，在通过二分法缩小范围。（只是定位问题不能回退数据）
 
-1、一般当前HEAD为异常记录，通过
+1、一般当前 HEAD 为异常记录，通过
 
 ```shell
 # 开始
@@ -465,11 +465,11 @@ git branch
 
 ### reset
 
-reset命令会将版本库和工作目录改变为已知的状态，只要没有人在版本库中某个分支的副本，你就可以修改该分支。**也就是提交记录只存在本地，未进行push**。
+reset 命令会将版本库和工作目录改变为已知的状态，只要没有人在版本库中某个分支的副本，你就可以修改该分支。**也就是提交记录只存在本地，未进行 push**。
 
 **--soft**
 
-会将HEAD引用指向给定提交。索引和工作目录的内容保持不变。
+会将 HEAD 引用指向给定提交。索引和工作目录的内容保持不变。
 
 ```shell
 git reset --soft HEAD
@@ -477,7 +477,7 @@ git reset --soft HEAD
 
 **--mixed**
 
-会将HEAD引用指向给定提交。索引内容也跟着改变以符合给定提交的树结构。是`git reset` 默认模式
+会将 HEAD 引用指向给定提交。索引内容也跟着改变以符合给定提交的树结构。是`git reset` 默认模式
 
 ```shell
 git reset --mixed HEAD
@@ -485,7 +485,7 @@ git reset --mixed HEAD
 
 **--hard**
 
-将HEAD引用指向给定提交。索引的内容也跟着改变以符合给定提交的树结构。此外，工作目录的内容也随之改变以反映给定提交表示的树的状态。
+将 HEAD 引用指向给定提交。索引的内容也跟着改变以符合给定提交的树结构。此外，工作目录的内容也随之改变以反映给定提交表示的树的状态。
 
 ```shell
 git reset --hard HEAD~2
@@ -493,7 +493,7 @@ git reset --hard HEAD~2
 
 ### cherry-pick
 
-将其他分支上的具体的commit点数据，merge到当前分支上，不修改当前已有的提交信息，只做新建。
+将其他分支上的具体的 commit 点数据，merge 到当前分支上，不修改当前已有的提交信息，只做新建。
 
 ```shell
 # 将dev分支HEAD的祖父commit点，merge到当前分支
@@ -520,7 +520,7 @@ git rebase -i master~3
 
 ### revert
 
-对于Push到远程仓库的操作，可以使用revert进行处理。
+对于 Push 到远程仓库的操作，可以使用 revert 进行处理。
 
 ```shell
 # 跳过前第四个
@@ -584,11 +584,11 @@ git submodule foreach git pull
 
 # 删除子模块
 # 1、子模块目录 删除子模块目录及源码
-rm -rf 
+rm -rf
 # 2、删除项目目录下.gitmodules文件中子模块相关条目
-vi .gitmodules 
+vi .gitmodules
 # 3、删除配置项中子模块相关条目
-vi .git/config 
+vi .git/config
 # 4、删除模块下的子模块目录，每个子模块对应一个目录，注意只删除对应的子模块目录即可
 rm -rf .git/module/[module]
 ```
@@ -610,7 +610,7 @@ $ git clone [url]
 
 ### 配置
 
-Git的设置文件为`.gitconfig`，它可以在用户主目录下（全局配置），也可以在项目目录下（项目配置）。
+Git 的设置文件为`.gitconfig`，它可以在用户主目录下（全局配置），也可以在项目目录下（项目配置）。
 
 ```shell
 # 显示当前的Git配置
@@ -868,7 +868,7 @@ git cat-file -p 2b9f38ad714a191bdd854f3f2197e1b4e545a4e3
 git rev-parse 3b8512d
 ```
 
-使用tag也是可以的
+使用 tag 也是可以的
 
 ```
 git rev-parse V1.0
@@ -884,7 +884,7 @@ git ls-files --stage
 
 ### 配置文件
 
-在Git中也存在配置文件的优先级层级关系，项目(--file)>全局(--global)>系统(--system)
+在 Git 中也存在配置文件的优先级层级关系，项目(--file)>全局(--global)>系统(--system)
 
 `.git/config` > `~/.gitconfig` > `/etc/gitconfig`
 
@@ -906,7 +906,7 @@ git config -l
 git config --global --unset user.name
 ```
 
-注：低版本的Git，对`--unset`的顺序还有要求。
+注：低版本的 Git，对`--unset`的顺序还有要求。
 
 ### 查看提交图
 
@@ -960,62 +960,62 @@ git log --oneline | wc -l
 
 > git log 参数说明：
 >
-> --author   指定作者
-> --stat   显示每次更新的文件修改统计信息，会列出具体文件列表
-> --shortstat    统计每个commit 的文件修改行数，包括增加，删除，但不列出文件列表：  
-> --numstat   统计每个commit 的文件修改行数，包括增加，删除，并列出文件列表：
+> --author 指定作者
+> --stat 显示每次更新的文件修改统计信息，会列出具体文件列表
+> --shortstat 统计每个 commit 的文件修改行数，包括增加，删除，但不列出文件列表：  
+> --numstat 统计每个 commit 的文件修改行数，包括增加，删除，并列出文件列表：
 >
 > -p 选项展开显示每次提交的内容差异，用 -2 则仅显示最近的两次更新
-> ​       例如：git log -p  -2
+> ​ 例如：git log -p -2
 > --name-only 仅在提交信息后显示已修改的文件清单
 > --name-status 显示新增、修改、删除的文件清单
 > --abbrev-commit 仅显示 SHA-1 的前几个字符，而非所有的 40 个字符
 > --relative-date 使用较短的相对时间显示（比如，“2 weeks ago”）
 > --graph 显示 ASCII 图形表示的分支合并历史
 > --pretty 使用其他格式显示历史提交信息。可用的选项包括 oneline，short，full，fuller 和 format（后跟指定格式）
-> ​       例如： git log --pretty=oneline ; git log --pretty=short ; git log --pretty=full ; git log --pretty=fuller
-> --pretty=tformat:   可以定制要显示的记录格式，这样的输出便于后期编程提取分析
-> ​       例如：git log --pretty=format:""%h - %an, %ar : %s""
-> ​       下面列出了常用的格式占位符写法及其代表的意义。                   
-> ​       选项       说明                  
-> ​       %H      提交对象（commit）的完整哈希字串               
-> ​       %h      提交对象的简短哈希字串               
-> ​       %T      树对象（tree）的完整哈希字串                   
-> ​       %t      树对象的简短哈希字串                    
-> ​       %P      父对象（parent）的完整哈希字串               
-> ​       %p      父对象的简短哈希字串                   
-> ​       %an     作者（author）的名字              
-> ​       %ae     作者的电子邮件地址                
-> ​       %ad     作者修订日期（可以用 -date= 选项定制格式）                   
-> ​       %ar     作者修订日期，按多久以前的方式显示                    
-> ​       %cn     提交者(committer)的名字                
-> ​       %ce     提交者的电子邮件地址                    
-> ​       %cd     提交日期                
-> ​       %cr     提交日期，按多久以前的方式显示              
-> ​       %s      提交说明  
-> --since  限制显示输出的范围，
-> ​       例如： git log --since=2.weeks    显示最近两周的提交
-> ​       选项 说明                
-> ​       -(n)    仅显示最近的 n 条提交                    
-> ​       --since, --after 仅显示指定时间之后的提交。                    
-> ​       --until, --before 仅显示指定时间之前的提交。                  
-> ​       --author 仅显示指定作者相关的提交。                
-> ​       --committer 仅显示指定提交者相关的提交。
+> ​ 例如： git log --pretty=oneline ; git log --pretty=short ; git log --pretty=full ; git log --pretty=fuller
+> --pretty=tformat: 可以定制要显示的记录格式，这样的输出便于后期编程提取分析
+> ​ 例如：git log --pretty=format:""%h - %an, %ar : %s""
+> ​ 下面列出了常用的格式占位符写法及其代表的意义。  
+> ​ 选项 说明  
+> ​ %H 提交对象（commit）的完整哈希字串  
+> ​ %h 提交对象的简短哈希字串  
+> ​ %T 树对象（tree）的完整哈希字串  
+> ​ %t 树对象的简短哈希字串  
+> ​ %P 父对象（parent）的完整哈希字串  
+> ​ %p 父对象的简短哈希字串  
+> ​ %an 作者（author）的名字  
+> ​ %ae 作者的电子邮件地址  
+> ​ %ad 作者修订日期（可以用 -date= 选项定制格式）  
+> ​ %ar 作者修订日期，按多久以前的方式显示  
+> ​ %cn 提交者(committer)的名字  
+> ​ %ce 提交者的电子邮件地址  
+> ​ %cd 提交日期  
+> ​ %cr 提交日期，按多久以前的方式显示  
+> ​ %s 提交说明  
+> --since 限制显示输出的范围，
+> ​ 例如： git log --since=2.weeks 显示最近两周的提交
+> ​ 选项 说明  
+> ​ -(n) 仅显示最近的 n 条提交  
+> ​ --since, --after 仅显示指定时间之后的提交。  
+> ​ --until, --before 仅显示指定时间之前的提交。  
+> ​ --author 仅显示指定作者相关的提交。  
+> ​ --committer 仅显示指定提交者相关的提交。
 
-一些例子： git log --until=1.minute.ago // 一分钟之前的所有 log git log --since=1.day.ago //一天之内的log git log --since=1.hour.ago //一个小时之内的 log git log --since=`.month.ago --until=2.weeks.ago //一个月之前到半个月之前的log git
+一些例子： git log --until=1.minute.ago // 一分钟之前的所有 log git log --since=1.day.ago //一天之内的 log git log --since=1.hour.ago //一个小时之内的 log git log --since=`.month.ago --until=2.weeks.ago //一个月之前到半个月之前的 log git
 
-log --since ==2013-08.01 --until=2013-09-07 //某个时间段的 log   git blame
+log --since ==2013-08.01 --until=2013-09-07 //某个时间段的 log git blame
 看看某一个文件的相关历史记录
 
 例如：git blame index.html --date short
 
 ### 子模块
 
-保留子组件的现有目录结构的完整性，故而git创造了类似于maven中的module一样的功能，来实现子模块的管理
+保留子组件的现有目录结构的完整性，故而 git 创造了类似于 maven 中的 module 一样的功能，来实现子模块的管理
 
-打个比方：现在我有一个父工程A，其工程路径下面有五个子工程BCDEF，按照往常是要`git clone` 6个工程才可以完全下载成功，而且工程与工程之间的路径关系也不知道。现在有了gitmodules就可以直接下载A工程就可以了，其他的5个子工程都会自动下载。
+打个比方：现在我有一个父工程 A，其工程路径下面有五个子工程 BCDEF，按照往常是要`git clone` 6 个工程才可以完全下载成功，而且工程与工程之间的路径关系也不知道。现在有了 gitmodules 就可以直接下载 A 工程就可以了，其他的 5 个子工程都会自动下载。
 
-文件.gitmodules存放在父工程根目录下
+文件.gitmodules 存放在父工程根目录下
 
 ```xml
 [submodule "others/B"]
@@ -1038,7 +1038,7 @@ git submodule add [远程仓库地址] [相对于父模块的相对路径]
 
 注：
 
-直接手动更改gitmodule文件是没有用的哦
+直接手动更改 gitmodule 文件是没有用的哦
 
 远程仓库地址要先于子模块之前准备好
 
@@ -1082,13 +1082,13 @@ git checkout [new local branch]
 git submodule init
 ```
 
-[gitmodules参考](https://git-scm.com/docs/gitmodules)
+[gitmodules 参考](https://git-scm.com/docs/gitmodules)
 
-### 关闭issue
+### 关闭 issue
 
-**格式**`Fixes #45`，45是issue的ID，在相应的issue的链接地址就有。
+**格式**`Fixes #45`，45 是 issue 的 ID，在相应的 issue 的链接地址就有。
 
-可以关闭issue的关键字：
+可以关闭 issue 的关键字：
 
 - close
 - closes
@@ -1100,11 +1100,11 @@ git submodule init
 - resolves
 - resolved
 
-**不同的仓库中关闭issue**
+**不同的仓库中关闭 issue**
 
 **格式**`close username/repository#issue_number`
 
-**关闭多个issues**
+**关闭多个 issues**
 
 **格式**`closes #34, closes #23, and closes example_user/example_repo#42`
 
@@ -1123,13 +1123,13 @@ git push origin master
 # 7、等待对方同意
 ```
 
-### git停留在writing objects
+### git 停留在 writing objects
 
 ```shell
 git config --global http.postBuffer 524288000
 ```
 
-> http.postBuffer默认上限为1M,上面的命令是把git的配置里http.postBuffer的变量改大为500M
+> http.postBuffer 默认上限为 1M,上面的命令是把 git 的配置里 http.postBuffer 的变量改大为 500M
 
 ### 文件大,上传慢
 
@@ -1137,11 +1137,11 @@ git config --global http.postBuffer 524288000
 git remote set-url origin [你的ssh地址]
 ```
 
-> 把远程仓库的上传由原来的HTTPS改为SSH上传，github在国内本身就慢，还可能被dns污染 , 因此推荐使用SSH上传
+> 把远程仓库的上传由原来的 HTTPS 改为 SSH 上传，github 在国内本身就慢，还可能被 dns 污染 , 因此推荐使用 SSH 上传
 
 ### 设置别名
 
-使用Git的过程中存在一些命令比较复杂或者说比较长的情况，Git提供了使用别名的方式帮助解决这个问题。
+使用 Git 的过程中存在一些命令比较复杂或者说比较长的情况，Git 提供了使用别名的方式帮助解决这个问题。
 
 ```shell
 git config --global alias.show-graph 'log --graph --abbrev-commit --pretty=online'
@@ -1176,14 +1176,14 @@ git checkout HEAD -- [data]
 | #                       | 用于开头，表示注释                             | `# 说明` |
 | 字面文字                | 匹配文字文件，将其排除                         |          |
 | 目录名由反斜线（/）标记 | 匹配同名的目录和子目录，但不匹配文件或符号链接 |          |
-| *                       | 通配符，模糊匹配                               | *.java   |
+| \*                      | 通配符，模糊匹配                               | \*.java  |
 | 起始的感叹号！          | 取反作用                                       |          |
 
 ### 相对提交名
 
-`^`符号用来选择不同的父提交。给定一个提交C，`C^1`表示第一个父提交，`C^2`表示第二个父提交
+`^`符号用来选择不同的父提交。给定一个提交 C，`C^1`表示第一个父提交，`C^2`表示第二个父提交
 
-`~`符号用于返回父提交之前并选择上一代提交。给定一个提交C，`C~1`表示第一个父提交，`C~`表示第一个祖父提交，可以通过0开始计数表示，HEAD就是0，HEAD的父提交，就是1。
+`~`符号用于返回父提交之前并选择上一代提交。给定一个提交 C，`C~1`表示第一个父提交，`C~`表示第一个祖父提交，可以通过 0 开始计数表示，HEAD 就是 0，HEAD 的父提交，就是 1。
 
 ### 定位冲突文件
 
@@ -1233,15 +1233,15 @@ git revert HEAD~3...HEAD
 
 ## 复杂场景实操
 
-#####A用户把1.2.0分支删了，B本地拥有最新的1.2.0分支
+#####A 用户把 1.2.0 分支删了，B 本地拥有最新的 1.2.0 分支
 
-这个时候，可以B将本地的分支代码Push到远程仓库，会自动创建1.2.0分支，同时，其他用户也可以在不修改的情况下拉取最新的1.2.0代码
+这个时候，可以 B 将本地的分支代码 Push 到远程仓库，会自动创建 1.2.0 分支，同时，其他用户也可以在不修改的情况下拉取最新的 1.2.0 代码
 
-##### 同事在1.2.0 分支上，对其下某一文件进行修改，突然发现，自己的分支切错了，正确的分支应该是1.1.0 分支，他现在想把1.2.0下面的修改迁移到1.1.0下，而不在1.2.0下做任何提交。
+##### 同事在 1.2.0 分支上，对其下某一文件进行修改，突然发现，自己的分支切错了，正确的分支应该是 1.1.0 分支，他现在想把 1.2.0 下面的修改迁移到 1.1.0 下，而不在 1.2.0 下做任何提交。
 
 我的解决方案：**使用 `git stash`**
 
-在1.2.0分支上，将已经修改的数据使用 `git stash`，如果存在新建的文件，那么不要对其进行Git追踪，没有被Git追踪的文件在切分支的时候，会自动切过去的。
+在 1.2.0 分支上，将已经修改的数据使用 `git stash`，如果存在新建的文件，那么不要对其进行 Git 追踪，没有被 Git 追踪的文件在切分支的时候，会自动切过去的。
 
 ![image-20180906142516182](assets/image-20180906142516182.png)
 
@@ -1269,7 +1269,7 @@ git revert HEAD~3...HEAD
 
 **注：**
 
-- 未被Git追踪文件，不用担心，因为Git还管不了你，直接切分支就可以了，这文件想在哪个分支提交，就在哪个分支提交
+- 未被 Git 追踪文件，不用担心，因为 Git 还管不了你，直接切分支就可以了，这文件想在哪个分支提交，就在哪个分支提交
 - 如果暂存区的数据需要删除
 
 ```shell
@@ -1282,7 +1282,7 @@ git stash pop [–index] [stash_id]
 
 ##### 当前`1.2.0`分支上做了修改，但是拉取代码会出现冲突问题。
 
-**如果没有commit，**可以通过stash避免这个问题
+**如果没有 commit，**可以通过 stash 避免这个问题
 
 ```shell
 #将当前修改进行暂存起来
@@ -1295,7 +1295,7 @@ git pull
 git stash pop
 ```
 
-**如果已经commit**，才发现冲突问题
+**如果已经 commit**，才发现冲突问题
 
 ```shell
 # 获取远端库最新信息 【分支名称】
@@ -1308,7 +1308,7 @@ git diff [本地分支名] origin/[远程分支名]
 git pull
 ```
 
-**方法2**
+**方法 2**
 
 ```shell
 # 获取最新代码到tmp分支上 [远程的分支:本地分支]
@@ -1329,7 +1329,7 @@ git merge tmp
 git branch -d tmp
 ```
 
-##### 如何批量删除untracked更改
+##### 如何批量删除 untracked 更改
 
 ```shell
 # 只删除所有untracked的文件
@@ -1341,7 +1341,7 @@ git clean -df
 - 提交到 remote 失败
 
 ```shell
- git push origin master -u                               
+ git push origin master -u
 Enumerating objects: 18254, done.
 Counting objects: 100% (18254/18254), done.
 Delta compression using up to 4 threads
@@ -1349,12 +1349,12 @@ Compressing objects: 100% (6590/6590), done.
 Writing objects: 100% (18254/18254), 6.44 MiB | 14.95 MiB/s, done.
 Total 18254 (delta 6416), reused 16414 (delta 5403)
 remote: Resolving deltas: 100% (6416/6416), done.
-remote: GitLab: 
+remote: GitLab:
 remote: A default branch (e.g. master) does not yet exist for psd/dew-trc
 remote: Ask a project Owner or Maintainer to create a default branch:
-remote: 
+remote:
 remote:   https://gitlab.trc.com/psd/dew-trc/project_members
-remote: 
+remote:
 To gitlab.trc.com:psd/dew-trc.git
  ! [remote rejected]   master -> master (pre-receive hook declined)
 error: failed to push some refs to 'git@gitlab.trc.com:psd/dew-trc.git'
@@ -1366,6 +1366,16 @@ error: failed to push some refs to 'git@gitlab.trc.com:psd/dew-trc.git'
 
 ```shell
 git config --global http.postBuffer 524288000
+```
+
+- unable to access error ssl routines:ssl3_get_record:wrong version number
+
+一般是开了代理的原因。
+
+- SSL certificate problem, verify that the CA cert is OK. Details: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed while accessing https://github.com/...
+
+```shell
+git config --global http.sslVerify false
 ```
 
 ## Tips

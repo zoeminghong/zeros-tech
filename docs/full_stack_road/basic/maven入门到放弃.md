@@ -96,6 +96,8 @@ Maven 安装过程非常简单，不同的操作系统，存在一些差异，�
 - 当第二直接依赖的范围是 provided 的时候，只传递第一直接依赖范围也为 provided 的依赖，且传递依赖的范围同样为 provided; 
 - 当第二直接依赖的范围是 runtime 的时候，传递性依赖的范围与第一直接依赖的范围一致，但 compile 例外，此时传递性依赖范围为 runtime 。
 
+
+
 ### Optional
 
 使用 Optional 的依赖包，只会作用于当前组件项目中，而不会继续对下一个依赖关系产生影响。
@@ -236,7 +238,7 @@ true 不会传递，false会传递（默认）
 
 `child`
 
-```
+```xml
 <dependencies>
     <dependency>
         <artifactId>spring-core</artifactId>
@@ -249,7 +251,7 @@ true 不会传递，false会传递（默认）
 
 若想获取父 pom 中所有的 dependencyManagement 中的构件配置，则在子 pom 中如下配置
 
-```
+```xml
 <dependencyManagement>
 	<dependencies>
 		<dependency>
@@ -263,7 +265,7 @@ true 不会传递，false会传递（默认）
 </dependencyManagement>
 ```
 
-在 `dependencyManagement、dependences` 中的依赖 `exclusion、scope` 属性是具有传递性的。optional 则不存在该特性。
+<u>在 `dependencyManagement、dependences` 中的依赖 `exclusion、scope` 属性是具有传递性的</u>。optional 则不存在该特性。
 
 #### 依赖性传递
 
@@ -359,6 +361,31 @@ pom 配置：
 ```
 
 因为一个插件可能存在多个功能，但我们并不一定所有的功能都需要，所以设定goal标签，表示我们要实现的功能。
+
+### 自定义插件仓库地址
+
+在项目开发中，可能存在自定义插件的场景，如果这个插件只是在私服中存在，需要 pluginRepositories 指定私服地址。
+
+```xml
+<pluginRepositories>
+    <pluginRepository>
+        <id>maven-local-snapshot</id>
+        <name>maven-local-snapshot</name>
+        <url>地址</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+    </pluginRepository>
+    <pluginRepository>
+        <id>maven-local-release</id>
+        <name>maven-local-release</name>
+        <url>地址</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </pluginRepository>
+</pluginRepositories>
+```
 
 ## 仓库管理
 
@@ -900,6 +927,71 @@ Version 支持范围表示。
 </dependency>  
 ```
 
+## toolchain
+
+toolchain插件用于环境中存在多个版本的JDK场景，指定具体的JDK作为代码编译。
+
+例如：我的Mac上存在1.8和11两个版本，默认是1.8，但现在有一个新的项目需要使用JDK-11，这个时候toolchain就有用武之地了。
+
+`toolchains.xml`
+
+```xml
+ <?xml version="1.0" encoding="UTF-8"?> 
+  <toolchains>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>8</version>
+        </provides>
+        <configuration>
+            <jdkHome>/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home</jdkHome>
+        </configuration>
+    </toolchain>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>11</version>
+        </provides>
+        <configuration>
+            <jdkHome>/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home</jdkHome>
+        </configuration>
+    </toolchain>
+  </toolchains>
+```
+
+该默认应保存于 `~/m2/toolchains.xml`。也可以使用 `mvn -gt ./config/toolchains.xml clean install` 命令自定义路径。
+
+`项目中pom文件`
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-toolchains-plugin</artifactId>
+    <version>1.1</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>toolchain</goal>
+            </goals>
+            <configuration>
+                <toolchains>
+                    <jdk>
+                        <version>${java.version}</version>
+                    </jdk>
+                </toolchains>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+JDK14 需要特殊处理，可以参见：[Guide for Supporting Multiple Versions of Java (8, 11, 14) in Your Maven Project](https://dzone.com/articles/guide-for-supporting-multiple-versions-of-java-8-1)。
+
+参见阅读：
+
+- https://www.cnblogs.com/flydean/p/apache-maven-toolchains.html
+- https://cguntur.me/2020/06/27/understanding-apache-maven-part-7/
+
 ## 问与答
 
 ### Optinal=true 与 scope=provide 的区别
@@ -907,6 +999,22 @@ Version 支持范围表示。
 Optinal=true：阻隔依赖的继承性，子项目可以引用该依赖也可以不引用。
 
 scope=provide：对象是依赖整体，依赖将提供编译而不参与打包，以使用方提供的为准，从而避免版本冲突。子项目必须引用该依赖，但可以版本不一样。
+
+### JDK9项目编译，应该注意哪些？
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <configuration>
+        <encoding>${project.build.sourceEncoding}</encoding>
+        <forceJavacCompilerUse>true</forceJavacCompilerUse>
+        <release>${java.version}</release>
+    </configuration>
+</plugin>
+```
+
+`Source 与 target` 在这里可以被 release 替换。
 
 ### 工具
 

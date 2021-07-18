@@ -54,3 +54,376 @@ ntpdate cn.pool.ntp.org
 nohup ping www.ibm.com &
 ```
 
+drwxr-xr-x
+
+- 第一位表示文件类型。d是目录文件，l是链接文件，-是普通文件，p是管道
+- 第2-4位表示这个文件的属主拥有的权限，r是读，w是写，x是执行。
+- 第5-7位表示和这个文件属主所在同一个组的用户所具有的权限。
+- 第8-10位表示其他用户所具有的权限
+
+-f:force:强制
+
+-f:file:文件
+
+##### ls(ll)
+
+> 显示文件列表
+
+- -a 把隐藏文件一起显示
+- F 只显示文件夹
+- R 显示当前目录下包含的目录中的文件
+
+```shell
+ll -a
+```
+
+`ll -a filename*`
+
+> 可以过滤当前路径下面文件名
+
+##### touch
+
+> 创建文件
+
+```shell
+touch [文件名]
+```
+
+##### cp
+
+> 复制文件
+
+- -f 强制覆盖已存在的目标文件
+- -R 递归的复制目录
+- -r 递归的复制文件
+
+```shell
+cp -f [源文件路径] [目标文件路径]
+```
+
+##### mv
+
+> 移动文件，重命名文件
+
+```shell
+mv [源文件路径] [目标路径]
+mv /usr/local/main.text /usr/local/copyfile.txt
+```
+
+##### rm
+
+> 移除文件
+
+- -f 强制删除
+- -i 有提示信息的删除
+
+```shell
+rm -f [删除的文件名]
+# 模糊匹配
+rm -i *.log
+# 整个文件
+rm -rf [文件夹]
+```
+
+##### mkdir
+
+> 创建文件夹
+
+```shell
+mkdir [目录名]
+```
+
+##### rmdir
+
+> 删除文件夹
+
+```shell
+rmdir [文件名]
+```
+
+##### cat
+
+查看文件内容
+
+> -n 添加行号
+> v
+```shell
+cat -n [文件名]
+```
+
+##### ps
+
+> 查看进程
+
+- -e 显示所有运行的进程
+- -f 扩展输出
+
+```
+ps -ef|grep [应用名]
+```
+
+##### kill
+
+> 杀进程
+
+```shell
+kill -9 [进程号]
+```
+
+##### unzip
+
+> 解压zip文件
+
+```shell
+unzip [压缩文件]
+```
+
+```shell
+unzip [压缩文件] -d [文件路径]
+```
+
+##### zip
+
+> 压缩文件为zip
+
+```shell
+zip -r [zip文件名] [文件(夹)...]
+```
+
+##### tar
+
+> 解压tar文件
+
+```shell
+tar -xvf [tar文件名]
+```
+
+```shell
+tar -xvf [tar文件名] -c [路径]
+```
+
+> 压缩文件为tar
+
+```shell
+tar –cvf [tar文件名] [文件(夹)]
+```
+
+##### tail
+
+> 用于查看文件内容 
+
+- -f 使tail不停地去读最新的内容
+
+```shell
+tail -100f catalina.out
+```
+
+##### vim
+
+> 编辑文件
+
+```shell
+vim [文件名]
+
+#编辑
+i
+#退出
+esc
+#保存修改
+:wq
+#不保存修改
+:q
+```
+
+gg：跳转到文件头
+
+Shift+g：跳转到文件末尾
+
+行数+gg：跳转到指定行，例跳转到123行：123gg
+
+##### date
+
+> 查看日期
+
+##### du
+
+> 查看硬盘的使用情况
+
+```shell
+du -sh ./*
+```
+
+##### diff
+
+> 比较文件夹下面的文件区别
+
+```shell
+diff -r [文件夹1] [文件夹2]
+```
+
+##### free
+
+> 查看内存
+
+```shell
+free -m
+```
+
+##### ln
+
+> 生成软连接
+
+```shell
+ln -s [源文件路径名] [链接文件名]
+```
+
+#####df
+
+>查看磁盘情况
+
+```shell
+df
+```
+
+##### ifconfig
+
+>查看IP
+
+```shell
+ifconfig
+```
+
+##### lsof
+
+> 查看端口占用
+
+```shell
+lsof -i tcp:port （port替换成端口号，比如6379)
+```
+
+
+##### find
+
+> 查找文件路径地址
+
+```shell
+find / -name 【文件名称】
+/是文件查找的路径
+```
+
+##### rm
+
+> 删除文件或文件夹
+
+```shell
+rm -f 【文件名】
+rm -rf 【文件夹名】
+```
+
+##### netstat -antup
+
+>查找端口与PID
+
+##### netstat -antup|grep PID
+
+>根据PID查端口
+
+##### :set nu
+>显示行数
+
+##### vmstat
+通过两个数字参数来完成的，第一个参数是采样的时间间隔数，单位是秒，第二个参数是采样的次数
+```shell
+vmstat 2 1
+
+```
+
+##### iftop
+流量监控软件，需要下载安装才能使用
+
+```shell
+yum install iftop
+iftop
+```
+- TX：发送流量
+- RX：接收流量
+- TOTAL：总流量
+- Cumm：运行iftop到目前时间的总流量
+- peak：流量峰值
+- rates：分别表示过去 2s 10s 40s 的平均流量
+
+##### scp
+本地文件上传到服务器指定目录
+
+```shell
+scp text.log root@172.123.0.1:/home/admin
+
+```
+##### sz
+服务器发送一个文件
+
+```shell
+### 下载一个文件： 
+# sz filename 
+### 下载多个文件： 
+# sz filename1 filename2
+### 下载dir目录下的所有文件，不包含dir下的文件夹： 
+# sz dir/*
+```
+
+##### rz
+服务器接收一个文件
+
+```shell
+rz
+
+```
+##### nohup
+
+nohup将运行的程序在后端运行
+
+**常见命令：**
+
+`nohup query.jar >/dev/null 2>&1 &`
+
+其中0 表示键盘输入 1表示屏幕输出(`STDOUT_FILENO`) 2表示错误输出(`STDERR_FILENO`)
+`/dev/null` 为垃圾桶，所以这个语句的含义就是把所有标准输出和标准出错都扔到垃圾桶里面
+
+`nohup query.jar >query.log 2>&1 &`
+所有标准输出和标准出错都扔到`query.log`里面
+
+[详解](https://blog.csdn.net/u010889390/article/details/50575345)
+
+##### netstat
+
+查看某个端口服务的连接数
+
+
+```
+# 8765为服务的端口号
+netstat -pant | grep ":8765" | wc -L
+```
+
+##### crontab
+
+```
+#重启
+/etc/init.d/crond restart
+
+#编辑
+crontab -e
+
+#编辑内容
+e.g.
+30 17 * * * bash /root/timer.sh
+
+#删除
+crontab -r
+
+#执行日志
+cat /var/log/cron
+```
+
+##### env
+
+查看Linux全局变量

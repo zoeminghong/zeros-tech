@@ -1,8 +1,197 @@
 # MongoDB
 
-## SQL化处理
+## SQL 化处理
 
-[SQL到MongoDB映射表](http://www.mongoing.com/docs/reference/sql-comparison.html)
+[SQL 到 MongoDB 映射表](http://www.mongoing.com/docs/reference/sql-comparison.html)
 
 [Mongo 官方接口文档](https://docs.mongodb.com/manual/reference/method/)
 
+### 常用命令
+
+```shell
+# 创建或切换数据库
+user [database_name]
+# 查看所有的数据库
+show dbs
+# 查看当前数据库名
+db
+# 删除当前数据库
+db.dropDatabase()
+# 删除所有集合
+db.collection.drop()
+# 插入数据
+db.[collection_name].insert({"key":"value"})
+# 修改数据
+db.[collection_name].update(
+   <query>,
+   <update>,
+   {
+     upsert: <boolean>,
+     multi: <boolean>,
+     writeConcern: <document>
+   }
+)
+query : update的查询条件，类似sql update查询内where后面的。
+update : update的对象和一些更新的操作符（如$,$inc...）等，也可以理解为sql update查询内set后面的
+upsert : 可选，这个参数的意思是，如果不存在update的记录，是否插入objNew,true为插入，默认是false，不插入。
+multi : 可选，mongodb 默认是false,只更新找到的第一条记录，如果这个参数为true,就把按条件查出来多条记录全部更新。
+writeConcern :可选，抛出异常的级别。
+# 通过传入的文档替换原有的文档
+db.collection.save(
+   <document>,
+   {
+     writeConcern: <document>
+   }
+)
+document : 文档数据。
+writeConcern :可选，抛出异常的级别。
+# 查询数据
+db.[collection_name].find()
+# 删除数据
+
+```
+
+### MongoDB 方法
+
+https://docs.mongodb.com/manual/reference/operator/aggregation/toLower/
+
+所有的 UserName 值小写
+
+```shell
+db.myCollection.find().forEach(
+  function(e) {
+    e.UserName = e.UserName.toLowerCase();
+    db.myCollection.save(e);
+  }
+)
+```
+
+### 最佳实践
+
+#### Mongo NumberLong()与 Object()导致的 json 转换问题
+
+【现象】
+com.fasterxml.jackson.databind.JsonMappingException: Can not deserialize instance of long out of START_OBJECT token
+
+【原因与解决方案】
+从 mongo 中直接读取的数据格式为 `"expireIntervalMS" : { "$numberLong" : "10000" }` 导致类 json=》object 出错，
+在数据的读取的时候进行 `com.mongodb.util.JSON.parse(document)` 处理
+
+#### Mongo 的 Key 不支持特殊符号
+
+不支持的符号
+
+```
+Windows下：/ . " $ * < > : | ?
+Linux下：  / . " $
+```
+
+【参考资料】
+https://stackoverflow.com/questions/42555757/mongodb-numberlong-numberlong-issue-while-converting-back-to-java-object
+
+#### Spring Boot 使用原生的 shell 命令方式
+
+在项目中存在一个这样的场景，希望使用 `mongo shell` 命令的方式实现数据的查询操作。那么在 `Spring Boot` 可以通过 evel 方式实现。
+
+在直接使用的时候，会报权限不存在的问题。下面是怎么解决这个问题。
+
+```
+> use admin
+switched to db admin
+> db.createRole( { role: "executeFunctions", privileges: [ { resource: { anyResource: true }, actions: [ "anyAction" ] } ], roles: [] } )
+{
+    "role" : "executeFunctions",
+    "privileges" : [
+        {
+            "resource" : {
+                "anyResource" : true
+            },
+            "actions" : [
+                "anyAction"
+            ]
+        }
+    ],
+    "roles" : [ ]
+}
+```
+
+创建一个随意的角色，executeFunctions 可以自定义。
+
+```
+> use LOG
+switched to db LOG
+> db.grantRolesToUser("dbuser", [ { role: "executeFunctions", db: "admin" } ])
+```
+
+将 `Spring Boot` 连接 mongo 的用户授权上面的角色。
+
+```
+db.getUser("dbuser")
+```
+
+检查该用户是否已经被授权了
+
+**Eval 代码**
+
+```java
+import com.infrasoft.mongo.MongoClientFactory;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
+import com.mongodb.DB;
+import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
+
+/**
+ *
+ * @author charudatta.joshi
+ */
+public class TestNaiveQuery1 {
+
+    public static void main(String[] args) {
+
+        String nativeQuery = "db.orders.aggregate([\n"
+                + "   {\n"
+                + "      $unwind: \"$specs\"\n"
+                + "   },\n"
+                + "   {\n"
+                + "      $lookup:\n"
+                + "         {\n"
+                + "            from: \"inventory\",\n"
+                + "            localField: \"specs\",\n"
+                + "            foreignField: \"size\",\n"
+                + "            as: \"inventory_docs\"\n"
+                + "        }\n"
+                + "   },\n"
+                + "   {\n"
+                + "      $match: { \"inventory_docs\": { $ne: [] } }\n"
+                + "   }\n"
+                + "])";
+
+        DBObject command = new BasicDBObject();
+        DB db = MongoClientFactory.getMongoClientFactory().getMongoClient().getDB("frms_data_demo");
+
+        nativeQuery = "function() { return (" + nativeQuery + ").toArray(); }";
+
+        //command.put("eval", "function() { return db." + collectionName + ".find(); }");
+        command.put("eval", nativeQuery);
+        CommandResult result = db.command(command);
+
+        BasicDBList dbObjList = (BasicDBList) result.toMap().get("retval");
+
+        DBObject dbo0 = (BasicDBObject) dbObjList.get(0);
+        DBObject dbo1 = (BasicDBObject) dbObjList.get(0);
+
+        System.out.println(dbObjList.get(0));
+        System.out.println(dbObjList.get(1));
+        // .... just loop on dbObjList
+
+    }
+
+
+}
+```
+
+[详细说明](https://www.claudiokuenzler.com/blog/555/allow-mongodb-user-execute-command-eval-mongodb-3.x#.W_PnqpMzbOR)
+
+[Mongo Evel](https://stackoverflow.com/questions/47093563/how-to-execute-mongodb-native-query-json-using-mongo-java-driver-only)

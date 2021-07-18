@@ -32,6 +32,23 @@ ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx    # 创建nginx软链接，若
 
 nginx    # 启动ngixn
 nginx -s stop     # 停止nginx服务
+
+
+server {
+    listen 80;
+    server_name dev.wangsl.com;
+    index index.html index.php index.htm;
+   
+    access_log  /usr/local/nginx/logs/8080-access.log main;
+    error_log  /usr/local/nginx/logs/8080-error.log;
+ 
+    return      301 https://$server_name$request_uri;      //强制跳转到https
+  
+    location ~ / {
+    root /var/www/html/8080;
+    index index.html index.php index.htm;
+    }
+}
 ```
 
 ### node js 安装
@@ -108,14 +125,13 @@ make install
 
 vim /usr/local/redis-5.0.3/redis.conf
 
-#bind 127.0.0.1  - 如果想让互联网上的其他机器也能访问redis，需要注释掉这句话
-#protected-mode - 如果想让互联网上的其他机器也能访问redis，需要设置成no
-#daemonize - 如果希望redis在后台运行, 需要设置成yes
-#requirepass - 在这里设置密码， 如果不需要密码， 需要注释掉这句话
-#daemonize yes - 后台运行
+bind 127.0.0.1  - 如果想让互联网上的其他机器也能访问redis，需要注释掉这句话
+protected-mode no - 如果想让互联网上的其他机器也能访问redis，需要设置成no
+daemonize yes - 如果希望redis在后台运行, 需要设置成yes
+requirepass XXXXX- 在这里设置密码， 如果不需要密码， 需要注释掉这句话
 
 # 启动
-usr/local/bin/redis-server /usr/local/redis-5.0.3/redis.conf
+./redis-server ../redis.conf (或者 usr/local/bin/redis-server /usr/local/redis-5.0.3/redis.conf)
 
 #无密码连接
 ./redis-cli

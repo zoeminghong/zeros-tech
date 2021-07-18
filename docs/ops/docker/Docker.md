@@ -17,7 +17,7 @@ Docker 使用了 2007 年已经成 Linux 中一部分的 cgroups 和 命名空�
 - 高移植性
 - 安全可靠
 
-容器的“单进程模型”，并不是指容器里只能运行“一个”进程，而是指容器没有管理多个进程的能力。这是因为容器里 PID=1 的进程就是应用本身，其他的进程都是这个PID=1 进程的子进程。可是，用户编写的应用，并不能够像正常操作系统里的 init 进程或者
+容器的“单进程模型”，并不是指容器里只能运行“一个”进程，而是指容器没有管理多个进程的能力。这是因为容器里 PID=1 的进程就是应用本身，其他的进程都是这个 PID=1 进程的子进程。可是，用户编写的应用，并不能够像正常操作系统里的 init 进程或者
 systemd 那样拥有进程管理的功能。比如，你的应用是一个 Java Web 程序(PID=1)，然后你执行 docker exec 在后台启动了一个 Nginx 进程(PID=3)。可是，当这个 Nginx 进程异常退出的时候，你该怎么知道呢?这个进程退出后的垃圾收集工作，又应该由谁去做呢?
 
 ## 为什么使用存储卷
@@ -29,7 +29,7 @@ systemd 那样拥有进程管理的功能。比如，你的应用是一个 Java 
 1. 首先有一个 Docker 仓库 账号
 2. `docker login`
 3. `docker tag imagename username/repository:tag`
-4. `docker push username/repository:tag` 
+4. `docker push username/repository:tag`
 
 ```shell
 docker tag friendlyhello gordon/get-started:part2
@@ -42,7 +42,7 @@ docker tag friendlyhello gordon/get-started:part2
 `docker-compose.yml`
 
 ```yml
-version: "3"
+version: '3'
 services:
   web:
     # replace username/repo:tag with your name and image details
@@ -51,12 +51,12 @@ services:
       replicas: 5
       resources:
         limits:
-          cpus: "0.1"
+          cpus: '0.1'
           memory: 50M
       restart_policy:
         condition: on-failure
     ports:
-      - "4000:80"
+      - '4000:80'
     networks:
       - webnet
 networks:
@@ -91,7 +91,7 @@ docker stack deploy -c docker-compose.yml getstartedlab
 
 重新执行该命令进行生效
 
-#### 停止Service
+#### 停止 Service
 
 ```shell
 # 停止 app
@@ -102,12 +102,12 @@ docker swarm leave --force
 
 ## 命令备忘录
 
-- `-it: ` 这是两个参数，一个是 -i：交互式操作，一个是 -t 终端。我们这里打算进入 bash 执行一些命令并查看返回结果，因此我们需要交互式终端。
+- `-it:` 这是两个参数，一个是 -i：交互式操作，一个是 -t 终端。我们这里打算进入 bash 执行一些命令并查看返回结果，因此我们需要交互式终端。
 - `--rm：` 这个参数是说容器退出后随之将其删除。默认情况下，为了排障需求，退出的容器并不会立即删除，除非手动 docker rm。我们这里只是随便执行个命令，看看结果，不需要排障和保留结果，因此使用`--rm`可以避免浪费空间。
-- `-d: ` 后台运行，`--detach` 。
-- `-p: ` 端口号。`<外部>:<内部>`
-- `--name: ` 实例名称
-- `-e: ` 环境变量
+- `-d:` 后台运行，`--detach` 。
+- `-p:` 端口号。`<外部>:<内部>`
+- `--name:` 实例名称
+- `-e:` 环境变量
 
 ```shell
 docker --version
@@ -118,7 +118,7 @@ docker info
 # 查询镜像
 docker search <镜像名>
 # to run the simple Docker image, hello-world:
-docker run -dit hello-world 
+docker run -dit hello-world
 # 查看日志
 docker logs -f <容器名>
 # 重启容器
@@ -128,7 +128,7 @@ docker rename <旧容器名> <新容器名>
 # 将容器id写到 /tmp/dockerid 中
 docker run --cidfile /tmp/dockerid <镜像>
 # List images that was downloaded to your machine
-docker image ls 
+docker image ls
 # Get the service ID for the one service in our application
 docker service ls
 # Get the service ID for the one service in our application
@@ -180,14 +180,14 @@ docker image rm $(docker image ls -a -q)
 # Inspect task or container
 docker inspect <task or container>
 # 查看容器存储层的变动
-docker diff ${CONTAINER ID} 
+docker diff ${CONTAINER ID}
 # 基于原先的镜像，生成新的镜像
 docker commit \
     --author "迹_Jason" \
     --message "修改index" \
     <容器名> \
     <新镜像名>:<新标签>
-    
+
 # 查看容器的IP地址
 docker inspect --format='{{.NetworkSettings.IPAddress}}' ${CONTAINER_ID}
 # --add-host ：指定往/etc/hosts添加的host
@@ -204,18 +204,22 @@ docker container prune
 docker rm $(docker ps -aq)
 # 删除所有的镜像
 docker rmi $(docker images -q)
+
+# 删除所有容器
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
 ```
 
 ## Docker 配置文件 daemon.json
 
 ```json
 {
-	// DNS 解析地址
+  // DNS 解析地址
   "dns": ["your_dns_address", "8.8.8.8"]
 }
 ```
 
-修改完 daemon.json 文件后执行  `sudo service docker restart`
+修改完 daemon.json 文件后执行 `sudo service docker restart`
 
 ## 数据共享与持久化
 
@@ -226,7 +230,7 @@ docker rmi $(docker images -q)
 
 ### Union 文件系统
 
-Union文件系统（[UnionFS](http://en.wikipedia.org/wiki/UnionFS)）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下(unite several directories into a single virtual filesystem)。
+Union 文件系统（[UnionFS](http://en.wikipedia.org/wiki/UnionFS)）是一种分层、轻量级并且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下(unite several directories into a single virtual filesystem)。
 
 Union 文件系统是 Docker 镜像的基础。镜像可以**通过分层来进行继承**，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。
 
@@ -326,7 +330,7 @@ $ docker volume prune
 ```shell
 # 创建数据卷
 docker volume create <name>
-# 显示数据卷的详细信息 
+# 显示数据卷的详细信息
 docker volume inspect <name>
 # 列出所有的数据卷
 docker volume ls <name>
@@ -351,7 +355,7 @@ $ docker run -d -P \
     python app.py
 ```
 
-上面的命令加载主机的 /src/webapp 目录到容器的 /opt/webapp目录。这个功能在进行测试的时候十分方便，比如用户可以放置一些程序到本地目录中，来查看容器是否正常工作。本地目录的路径必须是绝对路径，以前使用 -v 参数时如果本地目录不存在 Docker 会自动为你创建一个文件夹，现在使用 --mount 参数时如果本地目录不存在，Docker 会报错。
+上面的命令加载主机的 /src/webapp 目录到容器的 /opt/webapp 目录。这个功能在进行测试的时候十分方便，比如用户可以放置一些程序到本地目录中，来查看容器是否正常工作。本地目录的路径必须是绝对路径，以前使用 -v 参数时如果本地目录不存在 Docker 会自动为你创建一个文件夹，现在使用 --mount 参数时如果本地目录不存在，Docker 会报错。
 
 常用配置如下：
 
@@ -536,7 +540,7 @@ docker run --rm --hostname barker alpine:latest nslookup barker
 
 设置 DNS
 
-指定容器使用的DNS服务器，默认和宿主一致；
+指定容器使用的 DNS 服务器，默认和宿主一致；
 
 ```shell
 # --dns 支持设置多个 DNS 服务器
@@ -547,7 +551,7 @@ docker run --rm --dns 8.8.8.8 alpine:latest nsloopup docker.com
 
 设置查找域
 
-指定容器DNS搜索域名，默认和宿主一致；
+指定容器 DNS 搜索域名，默认和宿主一致；
 
 当设置该选项时，在查询时，任何不包括一直顶级域名（.com,.net）的主机名都会自动加上该后缀名。
 
@@ -584,7 +588,7 @@ docker run -p 192.168.0.32:1111:1111
 
 #### Expose
 
-Expose 容器对外暴露使用，与 `-p` 的区别是 `--expose ` 不支持主机网络直接访问，但支持`--link` 方式使用。
+Expose 容器对外暴露使用，与 `-p` 的区别是 `--expose` 不支持主机网络直接访问，但支持`--link` 方式使用。
 
 ```shell
 # -P 暴露所有端口
@@ -654,7 +658,7 @@ docker run --link a:alias-a --link b:alias-b
 
 基于 Linux Namespace 的隔离机制相比于虚拟化技术也有很多不足之处，其中最主要的问题就是:隔离得不彻底。
 
-尽管 Docker 使用 Linux Namespace 方案实现了 Mount、Network 等等的隔离，还是存在一些比如 CPU资源、Mem资源、时间是不存在隔离的，如果某个容器中修改了时间，就会导致所有在该宿主机上的容器应用都发生了变更。
+尽管 Docker 使用 Linux Namespace 方案实现了 Mount、Network 等等的隔离，还是存在一些比如 CPU 资源、Mem 资源、时间是不存在隔离的，如果某个容器中修改了时间，就会导致所有在该宿主机上的容器应用都发生了变更。
 
 尽管你可以在容器里通过 Mount Namespace 单独挂载其他不同版本的操作系统文件，比如 CentOS 或者 Ubuntu，但这并不能改变共享宿主机内核的事实。这意味着，如果你要在 Windows 宿主机上运行 Linux 容器，或者在低版本的 Linux 宿主机上运行高版本的 Linux 容器，都是行不通的。
 
@@ -699,15 +703,15 @@ $ cat /sys/fs/cgroup/cpu/docker/5d5c9f67d/cpu.cfs_quota_us
 
 ### 镜像
 
-一个镜像看似只有一个文件组成，实则由一个或多层构成，在 pull 镜像时，会发现多层依赖的情况，从而导致下载镜像的速度也存在差异。当本地已经存在相应层依赖数据时，相应的就可以加快速度。每一层可以理解为一个maven的依赖项。
+一个镜像看似只有一个文件组成，实则由一个或多层构成，在 pull 镜像时，会发现多层依赖的情况，从而导致下载镜像的速度也存在差异。当本地已经存在相应层依赖数据时，相应的就可以加快速度。每一层可以理解为一个 maven 的依赖项。
 
-容器中正在运行的服务对分层一无所知，容器具有镜像提供的独占副本，Union 文件系统是创建有效文件系统隔离极为关键的一套工具，其他工具还有MNT命名空间和chroot系统调用。
+容器中正在运行的服务对分层一无所知，容器具有镜像提供的独占副本，Union 文件系统是创建有效文件系统隔离极为关键的一套工具，其他工具还有 MNT 命名空间和 chroot 系统调用。
 
 该文件系统在你主机系统上创建挂载点，对分层使用进行封装。
 
 分层好处：存在公共层，对于一个镜像来说公共层正常情况下都只要下载一次就行了，不存在虚拟机一样，重复存储一样的数据。
 
-系统存在多种文件系统，在 Docker 中可以通过 `--storage-driver`  命令进行指定。
+系统存在多种文件系统，在 Docker 中可以通过 `--storage-driver` 命令进行指定。
 
 [https://xftony.github.io/docker/2018/05/04/Docker%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF-Union-File-System.html](https://xftony.github.io/docker/2018/05/04/Docker基础技术-Union-File-System.html)
 
@@ -715,7 +719,7 @@ $ cat /sys/fs/cgroup/cpu/docker/5d5c9f67d/cpu.cfs_quota_us
 
 分为有效镜像和无效镜像两种。
 
-为了理解 `<none>` 镜像，我们先要理解 Docker镜像系统的工作机制，以及 layers是如何组织起来的。
+为了理解 `<none>` 镜像，我们先要理解 Docker 镜像系统的工作机制，以及 layers 是如何组织起来的。
 
 当我拉取一个镜像的时候，运行 `docker images -a`命令，会发现我凭空多出来一个 `< none>:< none>` 镜像。
 
@@ -728,19 +732,19 @@ stresser                  latest              68ee9b96793e        9 days ago    
 
 镜像是有多个 layer 组成的，当 pull 一个镜像的时候，会拉取该镜像包含的父 layer，但有的父 layer 不存在名称，默认为 None，这种情况是有效的镜像，不占用磁盘空间。
 
-另一种类型的 < none>:< none> 镜像是dangling images ，这种类型会造成磁盘空间占用问题。
+另一种类型的 < none>:< none> 镜像是 dangling images ，这种类型会造成磁盘空间占用问题。
 
-像Java和Golang这种编程语言都有一个内存区，这个内存区不会关联任何的代码。这些语言的垃圾回收系统优先回收这块区域的空间，将他返回给堆内存，所以这块内存区对于之后的内存分配是有用的。
+像 Java 和 Golang 这种编程语言都有一个内存区，这个内存区不会关联任何的代码。这些语言的垃圾回收系统优先回收这块区域的空间，将他返回给堆内存，所以这块内存区对于之后的内存分配是有用的。
 
-docker的`悬挂(dangling)文件系统`与上面的原理类似，他是没有被使用到的并且不会关联任何镜像，因此我们需要一种机制去清理这些悬空镜像。
+docker 的`悬挂(dangling)文件系统`与上面的原理类似，他是没有被使用到的并且不会关联任何镜像，因此我们需要一种机制去清理这些悬空镜像。
 
-我们在上文已经提到了有效的< none>镜像，他们是一种中间层，那无效的< none>镜像又是怎么出现的？这些 dangling镜像主要是我们触发 `docker build` 和 `docker pull`命令产生的。
+我们在上文已经提到了有效的< none>镜像，他们是一种中间层，那无效的< none>镜像又是怎么出现的？这些 dangling 镜像主要是我们触发 `docker build` 和 `docker pull`命令产生的。
 
 P53
 
 ### 卷
 
-通过 `-v` 或者  `-volume` 自定义设置存储路径，支持多个一起使用。
+通过 `-v` 或者 `-volume` 自定义设置存储路径，支持多个一起使用。
 
 `--volumes-from` 从其他容器复制卷
 
@@ -779,7 +783,7 @@ docker run --rm --net none alpine:latest ip addr
 
 这种机制，其实就是对被隔离应用的进程空间做了手脚，使得这些进程只能看到重新计算过的进程编号，比如 PID=1。可实际上，他们在宿主机的操作系统里，还是原来的第 100 号进程。
 
-这时，新创建的这个进程将会“看到”一个全新的进程空间，在这个进程空间里，它的 PID 是1。之所以说“看到”，是因为这只是一个“障眼法”，在宿主机真实的进程空间里，这个进程的 PID 还是真实的数值，比如 100。
+这时，新创建的这个进程将会“看到”一个全新的进程空间，在这个进程空间里，它的 PID 是 1。之所以说“看到”，是因为这只是一个“障眼法”，在宿主机真实的进程空间里，这个进程的 PID 还是真实的数值，比如 100。
 
 除了 PID Namespace，Linux 操作系统还提供了 Mount、UTS、IPC、Network 和 User 这些 Namespace，用来对各种不同的进程上下文进行“障眼法”操作。
 
@@ -789,7 +793,7 @@ docker run --rm --net none alpine:latest ip addr
 
 Docker 不存在 Guest OS 这一层的资源消耗，更加的节省资源，但同时 Docker 的问题是隔离的不够彻底，多个容器之间共用一个操作系统内核，其实质就是一个特殊的进程而已。
 
-### Cgroups 
+### Cgroups
 
 就是 Linux 内核中用来为进程设置资源限制的一个重要功能。它最主要的作用，就是限制一个进程组能够使用的资源上限，包括 CPU、内存、磁盘、网络带宽等等。Cgroups 还能够对进程进行优先级设置、审计，以及将进程挂起和恢复等操作。
 
@@ -851,4 +855,4 @@ $ tree ./C
 
 可以看到，在这个合并后的目录 C 里，有 a、b、x 三个文件，并且 x 文件只有一份。这，就是“合并”的含义。此外，如果你在目录 C 里对 a、b、x 文件做修改，这些修改也会在对应的目录 A、B 中生效。
 
-Docker 下这个挂载点就是 ` /var/lib/docker/aufs/mnt/`，
+Docker 下这个挂载点就是 `/var/lib/docker/aufs/mnt/`，

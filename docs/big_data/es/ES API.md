@@ -8,11 +8,11 @@
 
 [Docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster.html)
 
-#### 查看集群健康状态 `/_cluster/health` 
+#### 查看集群健康状态 `/_cluster/health`
 
 ```shell
  curl -XGET  -H "Content-Type:application/json" --insecure -u admin:admin   "https://localhost:9200/_cluster/health?pretty"
- 
+
  {
   "cluster_name" : "elasticsearch",
   "status" : "green",
@@ -46,7 +46,7 @@ GET /_cluster/settings?include_defaults=true
 PUT _cluster/settings
 {
     "persistent": {
-        "action.auto_create_index": "twitter,index10,-index1*,+ind*" 
+        "action.auto_create_index": "twitter,index10,-index1*,+ind*"
     }
 }
 ```
@@ -146,7 +146,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-shards.html
 
 ```shell
  curl -XGET  -H "Content-Type:application/json" --insecure -u admin:admin   "https://localhost:9200/_cat/shards"
- 
+
 dop:dop_user_label                         0 r STARTED    216  193.9kb 10.200.131.187 dmp-node1
 dop:dop_user_label                         0 p STARTED    216  193.9kb 10.200.131.189 dmp-node3
 ```
@@ -165,7 +165,7 @@ GET /_cat/nodes?v&h=id,ip,port,v,m
 
 ```shell
 curl -X GET 'https://admin:admin@10.200.131.184:9200/_cat/indices?v'
- 
+
 health status index                                uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 green  open   dmp:yyy_customer_contacts            eUA40wuLTnuirgYI-WXyiw   5   1        515            0    515.8kb        257.9kb
 green  open   dop:dop_device_unique_month          DmdLO59QSbiFxK1hydrKlw   5   1       5860           33      6.2mb          3.1mb
@@ -184,13 +184,13 @@ PUT twitter/_doc/1
 }
 ```
 
-#### 创建索引  `/[index]?pretty`
+#### 创建索引 `/[index]?pretty`
 
 ```
 PUT /customer?pretty
 ```
 
-#### 添加/修改文档 `/[index]/_doc/[id]`  （全量更新）
+#### 添加/修改文档 `/[index]/_doc/[id]` （全量更新）
 
 ```shell
 PUT /customer/_doc/1?pretty
@@ -210,7 +210,7 @@ POST /customer/_doc?pretty
 GET /customer/_doc/1?pretty
 ```
 
-#### 删除索引  `/[index]`
+#### 删除索引 `/[index]`
 
 ```
 DELETE /customer?pretty
@@ -236,7 +236,7 @@ POST /customer/_doc/1/_update?pretty
 DELETE /customer/_doc/2?pretty
 ```
 
-#### 批量操作` /[index]/_doc/_bulk`
+#### 批量操作`/[index]/_doc/_bulk`
 
 ```shell
 POST /customer/_doc/_bulk?pretty
@@ -248,9 +248,9 @@ POST /customer/_doc/_bulk?pretty
 
 ## Search
 
-#### 集群上所有索引 `/_search` 
+#### 集群上所有索引 `/_search`
 
-#### 具体索引查询 `/[index]/_search` 
+#### 具体索引查询 `/[index]/_search`
 
 ```shell
 # customer_first_name 字段值为 Eddie 的数据
@@ -268,7 +268,7 @@ POST kibana_sample_data_ecommerce/_search
 }
 ```
 
-#### 多个索引查询 `/[index1,index2]/_search` 
+#### 多个索引查询 `/[index1,index2]/_search`
 
 #### 模糊索引匹配查询 `/[index*]/_search`
 
@@ -309,7 +309,7 @@ GET /bank/_search
 }
 ```
 
-### Query String Syntax 
+### Query String Syntax
 
 #### 指定字段 VS 泛查询
 
@@ -323,7 +323,7 @@ Beautiful Mind 等效于 Beautiful OR Mind
 
 #### 分组与引号
 
-title:(Beautiful AND Mind)  使用括号标识分组
+title:(Beautiful AND Mind) 使用括号标识分组
 
 title="Beautiful Mind"
 
@@ -350,8 +350,8 @@ AND / OR / NOT 或者 && / || / !
 
 分组
 
-- `+` 表示 must  `%2`
-- `-` 表示 must_not 
+- `+` 表示 must `%2`
+- `-` 表示 must_not
 - title:(+matrix - reloaded)
 
 ```
@@ -399,9 +399,9 @@ GET /movies/_search?q=title:beautiful AND year:[2002 TO 2018%7D
 
 通配符查询（查询效率低，占用内存大，不建议使用，特别是放在最前面）
 
-- ？代表一个字符，* 代表 0 或多个字符
+- ？代表一个字符，\* 代表 0 或多个字符
   - Title:mi?d
-  - Title:be*
+  - Title:be\*
 
 正则表达式
 
@@ -689,7 +689,7 @@ term query 查询的是倒排索引中确切的term
 match query 会对filed进行分词操作，然后再查询
 ```
 
-#### 搜索数据 ` /[index]/_search`
+#### 搜索数据 `/[index]/_search`
 
 ```shell
 GET /bank/_search?q=*&sort=account_number:asc&pretty
@@ -712,7 +712,7 @@ GET /bank/_search
     "skipped" : 0,
     "failed" : 0
   },
-  "hits" : { 
+  "hits" : {
     "total" : 1000, # 匹配数据总数
     "max_score" : null,
     "hits" : [ {
@@ -743,9 +743,17 @@ GET /bank/_search
 GET /bank/account/25/_termvectors?fields=address
 ```
 
+## Data Streams
+
+[创建 DataStream](https://www.elastic.co/guide/en/elasticsearch/reference/master/set-up-a-data-stream.html)
+
+[change mapping](https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams-change-mappings-and-settings.html)
+
+[Data Streams 详细说明](https://blog.csdn.net/UbuntuTouch/article/details/110528838)
+
 ## 倒排索引
 
-倒排索引：单词到文档ID的关系
+倒排索引：单词到文档 ID 的关系
 
 ![IMG_6393](assets/IMG_6393.png)
 
@@ -778,7 +786,7 @@ Analyzer 由三部分组成
 
 - Character Filters 针对原始文本处理
 - Tokenizer 按照规则切分单词
-- Token Filter 对切分后的单词进行加工，小写，删除 stopword等
+- Token Filter 对切分后的单词进行加工，小写，删除 stopword 等
 
 内置分词器
 
@@ -788,11 +796,11 @@ Analyzer 由三部分组成
 - Whitespace Analyzer – 按照空格切分，不转小写
 - Keyword Analyzer – 不分词，直接将输入当作输出
 - Patter Analyzer – 正则表达式，默认 \W+ (非字符分隔)
-- Language – 提供了30多种常见语言的分词器
+- Language – 提供了 30 多种常见语言的分词器
 
 中文分词器
 
-- ICU Analyzer  – 提供了 Unicode 的支持，更好的支持亚洲语言，`elasticsearch-plugin install analysis-icu` 
+- ICU Analyzer – 提供了 Unicode 的支持，更好的支持亚洲语言，`elasticsearch-plugin install analysis-icu`
 - IK – 支持自定义词库，支持热更新分词字典
 - THULAC – 清华大学自然语言处理提供的分词器
 
@@ -831,13 +839,13 @@ PUT users
 
 - positions：记录 doc id / term frequencies / term position
 
-- Offsets:  doc id / term frequencies / term postition / character offset
+- Offsets: doc id / term frequencies / term postition / character offset
 
   Text 默认记录是 positions，其他默认是 docs
 
   记录越多，占用空间越多
 
-  通过 `index_options: "positions"`  进行配置
+  通过 `index_options: "positions"` 进行配置
 
 ## Index Template
 
@@ -881,7 +889,7 @@ Term Level Query：Term Query / Range Query / Exists Query / Prefix Query / Wild
 }
 ```
 
-Term 是不做分词的，所以查询时候是都是小写类型，反而大写是不能进行精确匹配，如果需要精确匹配，需要使用keyword
+Term 是不做分词的，所以查询时候是都是小写类型，反而大写是不能进行精确匹配，如果需要精确匹配，需要使用 keyword
 
 ```shell
 POST /products/_search
@@ -938,7 +946,7 @@ POST products/_search
     }
 ```
 
-结构化数据的精确匹配，就使用term查询。日期属于结构化数据。match主要用于文本的 full-text 查询
+结构化数据的精确匹配，就使用 term 查询。日期属于结构化数据。match 主要用于文本的 full-text 查询
 
 ## 结构化搜索
 
@@ -1080,4 +1088,3 @@ POST movies/_search
 ```
 
 ES 多值查询采用的是包含，而不是相等，上方例子中会返回两条数据。
-
