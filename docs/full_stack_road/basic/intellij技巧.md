@@ -10,6 +10,9 @@
 - Maven Helper：定位 Maven 依赖冲突问题；
 - Rainbow Brackets：高亮括号；
 - Asciidoc：文档编辑器；
+- MybatisX：Mybatis XML 文件索引工具；
+- String Minipulation：字符串工具；
+- POJO to Json：POJO 转 Json；
 
 ## 快捷键
 
@@ -124,3 +127,11 @@
 ![image-20180905200159728](assets/image-20180905200159728.png)
 
 是不是感觉很好用
+
+### IDEA中double shift与输入法冲突
+
+<img src="assets/image-20210720090723258.png" alt="image-20210720090723258" style="zoom:50%;" />
+
+<img src="assets/image-20210720090831264.png" alt="image-20210720090831264" style="zoom:50%;" />
+
+<img src="assets/image-20210720090924381.png" alt="image-20210720090924381" style="zoom:50%;" />
