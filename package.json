@@ -1,31 +1,31 @@
 {
-  "private": true,
-  "name": "dumi-app",
+  "name": "theme-vdoing-blog",
+  "version": "1.0.0",
   "scripts": {
-    "start": "dumi dev",
-    "build": "dumi build",
-    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'"
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs",
+    "deploy": "bash deploy.sh",
+    "editFm": "node utils/editFrontmatter.js",
+    "baiduPush": "node utils/baiduPush.js https://xugaoyi.com && bash baiduPush.sh",
+    "publish": "cd theme-vdoing && npm publish && cd ../ && npm run updateTheme",
+    "updateTheme": "npm uninstall vuepress-theme-vdoing && rm -rf node_modules && npm i && npm i vuepress-theme-vdoing -D"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "typings": "dist/index.d.ts",
-  "gitHooks": {
-    "pre-commit": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,jsx,less,md,json}": [
-      "prettier --write"
-    ],
-    "*.ts?(x)": [
-      "prettier --parser=typescript --write"
-    ]
+  "license": "MIT",
+  "devDependencies": {
+    "dayjs": "^1.9.7",
+    "inquirer": "^7.1.0",
+    "json2yaml": "^1.1.0",
+    "vuepress": "1.8.0",
+    "vuepress-plugin-baidu-autopush": "^1.0.1",
+    "vuepress-plugin-baidu-tongji": "^1.0.1",
+    "vuepress-plugin-demo-block": "^0.7.2",
+    "vuepress-plugin-one-click-copy": "^1.0.2",
+    "vuepress-plugin-thirdparty-search": "^1.0.2",
+    "vuepress-plugin-zooming": "^1.1.7",
+    "vuepress-theme-vdoing": "^1.8.1",
+    "yamljs": "^0.3.0"
   },
   "dependencies": {
-    "lint-staged": "^10.0.7",
-    "prettier": "^1.19.1",
-    "yorkie": "^2.0.0"
-  },
-  "devDependencies": {
-    "dumi": "^1.0.10"
+    "vuepress-plugin-comment": "^0.7.3"
   }
 }
