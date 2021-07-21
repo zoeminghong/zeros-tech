@@ -2,10 +2,11 @@
 title: big_data_大数据技术栈
 date: 2021-02-08 09:57:36
 permalink: /pages/f7bb81/
-categories:
+categories: 
   - 大数据
-tags:
-  - 
+tags: 
+  - null
+comment: true
 ---
 # 大数据技术栈
 

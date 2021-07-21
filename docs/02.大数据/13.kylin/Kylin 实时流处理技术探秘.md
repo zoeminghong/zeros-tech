@@ -2,11 +2,12 @@
 title: Kylin 实时流处理技术探秘
 date: 2021-02-08 09:57:36
 permalink: /pages/314d36/
-categories:
+categories: 
   - 大数据
   - kylin
-tags:
-  - 
+tags: 
+  - null
+comment: true
 ---
 # Kylin 实时流处理技术探秘
 

@@ -1,5 +1,5 @@
 {
-  "name": "theme-vdoing-blog",
+  "name": "zeros-tech",
   "version": "1.0.0",
   "scripts": {
     "dev": "vuepress dev docs",
@@ -22,7 +22,7 @@
     "vuepress-plugin-one-click-copy": "^1.0.2",
     "vuepress-plugin-thirdparty-search": "^1.0.2",
     "vuepress-plugin-zooming": "^1.1.7",
-    "vuepress-theme-vdoing": "^1.8.1",
+    "vuepress-theme-vdoing": "^1.8.3",
     "yamljs": "^0.3.0"
   },
   "dependencies": {

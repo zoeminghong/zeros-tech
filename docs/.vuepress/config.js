@@ -14,21 +14,6 @@ module.exports = {
   },
 
   head,
-  plugins:[
-    [
-      'vuepress-plugin-comment',
-      {
-        choosen: 'gitalk', 
-        options: {
-          clientID: 'baa6cf87e091d19b9fec',
-          clientSecret: 'e464ce048d93cd8c07c5f12bbbad3c03cf0711aa',
-          repo: 'git@github.com:zoeminghong/zeros-tech.git',
-          owner: 'zoeminghong',
-          admin: ['zoeminghong'],
-          distractionFreeMode: false 
-        }
-      }
-    ]
-  ],
+  plugins,
   themeConfig,
 }

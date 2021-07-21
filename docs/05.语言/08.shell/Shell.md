@@ -2,11 +2,12 @@
 title: Shell
 date: 2021-07-18 21:55:02
 permalink: /pages/fa2412/
-categories:
+categories: 
   - 语言
   - shell
-tags:
-  - 
+tags: 
+  - null
+comment: true
 ---
 ## 文件格式
 

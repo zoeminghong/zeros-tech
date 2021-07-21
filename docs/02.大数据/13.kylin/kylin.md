@@ -2,11 +2,12 @@
 title: kylin
 date: 2021-02-08 09:57:36
 permalink: /pages/663393/
-categories:
+categories: 
   - 大数据
   - kylin
-tags:
-  - 
+tags: 
+  - null
+comment: true
 ---
 ## 什么是 Kylin
 
