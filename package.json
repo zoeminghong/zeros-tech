@@ -6,8 +6,8 @@
     "build": "vuepress build docs",
     "deploy": "bash deploy.sh",
     "editFm": "node utils/editFrontmatter.js",
-    "baiduPush": "node utils/baiduPush.js https://xugaoyi.com && bash baiduPush.sh",
-    "publish": "cd theme-vdoing && npm publish && cd ../ && npm run updateTheme",
+    "baiduPush": "node utils/baiduPush.js https://zerostech.com && bash baiduPush.sh",
+    "publish": "cd zeros-tech && npm publish && cd ../ && npm run updateTheme",
     "updateTheme": "npm uninstall vuepress-theme-vdoing && rm -rf node_modules && npm i && npm i vuepress-theme-vdoing -D"
   },
   "license": "MIT",
