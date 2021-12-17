@@ -1,13 +1,3 @@
----
-title: SpringGateway
-date: 2021-09-16 19:29:51
-permalink: /pages/9f39a8/
-categories:
-  - 架构
-  - SpringCloud
-tags:
-  - 
----
 
 
 ## Read First
@@ -74,6 +64,7 @@ RoutePredicateHandlerMapping =》RouteLocator=》RouteDefinitionLocator
 
 PathRoutePredicateFactory
 
+AbstractErrorWebExceptionHandler 异常情况
 ```
 
 [路由定义定位器 RouteDefinitionLocator](https://www.cnblogs.com/liukaifeng/p/10055869.html)

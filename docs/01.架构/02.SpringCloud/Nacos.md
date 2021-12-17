@@ -57,3 +57,24 @@ https://blog.csdn.net/China_eboy/article/details/112507139
 ```
 NacosConfigService
 ```
+
+
+
+## 运维
+
+```
+./startup.sh -m standalone
+```
+
+```
+nacos.core.auth.default.token.expire.seconds=86400  过期时间，秒
+```
+
+### 日志刷写问题
+
+```
+logging:
+  level:
+    com.alibaba.nacos.client.*: WARN
+```
+
