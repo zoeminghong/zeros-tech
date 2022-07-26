@@ -50,15 +50,17 @@ private String autoInfo;
 
 https://blog.csdn.net/China_eboy/article/details/112507139
 
-
-
-
-
 ```
 NacosConfigService
 ```
 
+### Nacos 配置加载优先级
 
+- application 主配置 > extensionConfigs > sharedConfigs
+- extensionConfigs/sharedConfigs 排在后面的数组比前面的优先级高
+- application 主逻辑 profile > 带后缀
+
+https://www.shouxicto.com/article/1684.html
 
 ## 运维
 
